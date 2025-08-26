@@ -13,7 +13,7 @@ spec:
   generators:
     - git:
         repoURL: https://github.com/<your-org>/<your-repo>.git
-        revision: master
+        revision: main
         directories:
           - path: 'prod/*'
         values:
