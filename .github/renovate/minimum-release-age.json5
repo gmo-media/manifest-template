@@ -1,0 +1,19 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "packageRules": [
+    {
+      "description": "Defaults to 1 day of stability",
+      "minimumReleaseAge": "1 day",
+    },
+    {
+      "description": "./base packages should have 3 days of stability",
+      "matchFileNames": ["base/**"],
+      "minimumReleaseAge": "3 days",
+    },
+    {
+      "description": "./prod packages should have 3 days of stability",
+      "matchFileNames": ["prod/**"],
+      "minimumReleaseAge": "3 days",
+    }
+  ]
+}

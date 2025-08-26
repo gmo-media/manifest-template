@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: application-set
+  namespace: argocd
+
+spec:
+  syncPolicy:
+    # Important: Preserve Application resources on accidental ApplicationSet deletion
+    # On deleting application, delete resources inside application first (or delete the entire namespace if app contains no cluster resources)
+    preserveResourcesOnDeletion: true
+
+  generators:
+    - git:
+        repoURL: https://github.com/<your-org>/<your-repo>.git
+        revision: master
+        directories:
+          - path: 'prod/*'
+        values:
+          path: '{{path.basename}}'
+
+  template:
+    metadata:
+      name: '{{path.basename}}'
+    spec:
+      destination:
+        namespace: '{{path.basename}}'
+        server: https://kubernetes.default.svc
+      project: default
+      source:
+        repoURL: https://github.com/<your-org>/<your-repo>.git
+        path: '{{path}}'
+        targetRevision: main
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+          # Workaround to error "... is invalid: metadata.annotations: Too long: must have at most 262144 bytes"
+          # https://github.com/prometheus-community/helm-charts/issues/3345#issuecomment-1574929706
+          - ServerSideApply=true
+        managedNamespaceMetadata:
+          labels:
+            elbv2.k8s.aws/pod-readiness-gate-inject: enabled
+        automated:
+          prune: true
+          selfHeal: true

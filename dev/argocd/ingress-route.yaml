@@ -1,0 +1,39 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: argocd
+
+spec:
+  entryPoints:
+    - web
+
+  routes:
+    - kind: Rule
+      match: Host(`cd.example.com`)
+      middlewares:
+        - name: auth-group-admin
+          namespace: auth
+      services:
+        - kind: Service
+          name: argocd-server
+          port: 80
+          scheme: http
+
+    # Pass through webhook
+    # https://argo-cd.readthedocs.io/en/stable/operator-manual/webhook/
+    - kind: Rule
+      match: Host(`cd.example.com`) && PathPrefix(`/api/webhook`)
+      services:
+        - kind: Service
+          name: argocd-server
+          port: 80
+          scheme: http
+
+    # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Pull-Request/
+    - kind: Rule
+      match: Host(`appset-cd.example.com`) && PathPrefix(`/api/webhook`)
+      services:
+        - kind: Service
+          name: argocd-applicationset-controller
+          port: http-webhook
+          scheme: http

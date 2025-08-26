@@ -1,0 +1,8 @@
+helmCharts:
+  - repo: https://kubernetes-sigs.github.io/metrics-server
+    name: metrics-server
+    version: "3.13.0"
+    includeCRDs: true
+    namespace: metrics-server
+    releaseName: metrics-server
+    valuesFile: values.yaml

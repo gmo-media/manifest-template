@@ -1,0 +1,2 @@
+# https://github.com/kubernetes-sigs/aws-ebs-csi-driver/issues/2574
+nodeAllocatableUpdatePeriodSeconds: null

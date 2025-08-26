@@ -1,0 +1,17 @@
+helmCharts:
+  - repo: https://traefik.github.io/charts
+    name: traefik
+    version: "37.0.0"
+    # Correctly render PDB apiVersion (in CI)
+    # https://github.com/traefik/traefik-helm-chart/blob/master/traefik/templates/poddisruptionbudget.yaml
+    apiVersions:
+      - policy/v1/PodDisruptionBudget
+    includeCRDs: true
+    namespace: traefik
+    releaseName: traefik
+    valuesFile: values.yaml
+
+resources:
+  - alb.yaml
+  - ingress-route-dashboard.yaml
+  - whoami.yaml

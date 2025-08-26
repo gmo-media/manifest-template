@@ -1,0 +1,13 @@
+resources:
+  - cronjob.yaml
+
+configMapGenerator:
+  - name: config
+    files:
+      - config/renovate-bot.js
+  - name: entrypoint
+    files:
+      - config/entrypoint.sh
+
+generators:
+  - ksops.yaml

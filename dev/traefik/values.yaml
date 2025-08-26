@@ -1,0 +1,95 @@
+podDisruptionBudget:
+  enabled: true
+  maxUnavailable: 20%
+
+providers:
+  kubernetesCRD:
+    allowCrossNamespace: true
+    allowExternalNameServices: true
+  file:
+    enabled: true
+    watch: false
+    content: |
+      http:
+        middlewares:
+          compress:
+            compress:
+              # See also defaults of https://caddyserver.com/docs/caddyfile/directives/encode
+              includedContentTypes:
+                - text/plain
+                - text/csv
+                - text/css
+                - text/javascript
+                - text/html
+                - application/json
+                - application/javascript
+                - application/xhtml+xml
+                - application/atom+xml
+                - application/rss+xml
+                - image/svg+xml
+
+logs:
+  general:
+    format: json
+  access:
+    enabled: true
+    format: json
+    fields:
+      general:
+        defaultmode: drop
+        names:
+          ClientHost: keep
+          DownstreamContentSize: keep
+          DownstreamStatus: keep
+          Duration: keep
+          OriginContentSize: keep
+          OriginStatus: keep
+          RequestContentSize: keep
+          RequestHost: keep
+          RequestMethod: keep
+          RequestPath: keep
+          ServiceAddr: keep
+      headers:
+        defaultmode: drop
+        names:
+          User-Agent: keep
+          Referer: keep
+
+metrics:
+  prometheus:
+    disableAPICheck: true
+    serviceMonitor:
+      enabled: false
+
+ports:
+  web:
+    forwardedHeaders:
+      trustedIPs:
+        # Replace with your VPC CIDR
+        - 10.1.0.0/16 # VPC
+        - 2406:da14:1268:c100::/56 # VPC
+    transport:
+      lifeCycle:
+        # https://github.com/kubernetes/kubernetes/issues/106476
+        requestAcceptGraceTimeout: 30
+    middlewares:
+      - compress@file
+
+service:
+  type: ClusterIP
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 512Mi

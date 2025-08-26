@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $.Release.Name }}
+  namespace: {{ $.Release.Namespace }}
+
+data:
+  config.yaml: |
+    # secret = <env secret>
+    log-level: info
+
+    provider: oidc
+
+    auth-host: {{ $.Values.authHosts | join "," }}
+    cookie-domains: {{ $.Values.hosts | join "," }}
+    cookie-name: {{ $.Values.cookie.name }}
+    lifetime: {{ $.Values.cookie.lifetime }}
+    info-fields:
+      {{- $.Values.infoFields | toYaml | nindent 6 }}
+
+    providers:
+      oidc:
+        scopes: {{ $.Values.oidc.scopes }}
+        issuer-url: {{ $.Values.oidc.issuerUrl }}
+        client-id: {{ $.Values.oidc.clientID }}
+        # client-secret = <env secret>
+        prompt: {{ $.Values.oidc.prompt }}
+
+    rules:
+      {{- range $name, $names := $.Values.groups }}
+      group-{{ $name }}:
+        action: auth
+        route-rule: Header(`X-Forward-Auth-Group`, `{{ $name }}`)
+        auth-rule: >-
+          In(`email_verified`, `true`) &&
+          In(`email`, `{{ $names | join "`, `" }}`)
+      {{- end }}
+
+    headers:
+      {{- range $i, $h := .Values.headers }}
+      h-{{ $i }}:
+        name: {{ $h.name }}
+        source: {{ $h.source }}
+      {{- end }}

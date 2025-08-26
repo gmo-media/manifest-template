@@ -1,0 +1,44 @@
+image:
+  name: "ghcr.io/traptitech/traefik-forward-auth"
+  # renovate:image-tag imageName=ghcr.io/traptitech/traefik-forward-auth
+  tag: "3.3.1"
+
+authHosts: []
+hosts: []
+
+replicas: 2
+pdb:
+  enabled: true
+  minAvailable: 1
+
+ingressRoute:
+  enabled: true
+  entrypoints:
+    - web
+  tlsName: ""
+
+oidc:
+  clientID: ""
+  scopes: "openid email profile"
+  issuerUrl: "https://accounts.google.com"
+  prompt: none
+
+secretName: "forward-auth"
+
+cookie:
+  name: "_forward_auth"
+  lifetime: 1209600 # 2 weeks
+
+infoFields:
+  - sub
+  - email
+  - email_verified
+headers:
+  - name: X-Forwarded-Sub
+    source: sub
+  - name: X-Forwarded-User
+    source: email
+
+groups:
+  admin:
+    - admin@example.com

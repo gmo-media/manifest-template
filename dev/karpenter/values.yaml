@@ -1,0 +1,27 @@
+serviceAccount:
+  create: true
+  name: karpenter
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::<aws-account-id>:role/KarpenterController-<your-cluster-name>
+
+settings:
+  clusterEndpoint: https://<your-cluster-endpoint>.eks-cluster.<your-region>.api.aws
+  clusterName: <your-cluster-name>
+  interruptionQueue: Karpenter-<your-cluster-name>
+  featureGates:
+    spotToSpotConsolidation: true
+
+controller:
+  resources:
+    # Fargate has a predefined set of pod sizes:
+    # https://docs.aws.amazon.com/eks/latest/userguide/fargate-pod-configuration.html
+    # Note that fargate automatically adds 256Mi overhead to the memory request.
+    # Example: if you have requested 768Mi memory, you will be assigned "1G" fargate pod size.
+    requests:
+      cpu: 250m
+      memory: 768Mi
+    limits:
+      cpu: 250m
+      memory: 768Mi
+
+replicas: 1

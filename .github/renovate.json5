@@ -1,0 +1,36 @@
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: [
+    'config:recommended',
+    'docker:enableMajor',
+    ':disableRateLimiting',
+    ':dependencyDashboard',
+    ':semanticCommits',
+    ':automergeDigest',
+    ':automergePatch',
+    'helpers:pinGitHubActionDigests',
+    'github>gmo-media/general-manifest//.github/renovate/auto-merge.json5',
+    'github>gmo-media/general-manifest//.github/renovate/labels.json5',
+    'github>gmo-media/general-manifest//.github/renovate/minimum-release-age.json5',
+    'github>gmo-media/general-manifest//.github/renovate/pin-digests.json5',
+    'github>gmo-media/general-manifest//.github/renovate/regex-manager.json5'
+  ],
+  platform: 'github',
+  platformAutomerge: true,
+  automergeType: 'pr',
+  onboarding: false,
+  dependencyDashboardTitle: 'Renovate Dashboard 🤖',
+  suppressNotifications: [
+    'prIgnoreNotification',
+  ],
+  branchConcurrentLimit: 0,
+  prConcurrentLimit: 0,
+  kubernetes: {
+    managerFilePatterns: [
+      '/.+\\.ya?ml$/',
+    ],
+  },
+  // Group by ./dev or ./prod
+  additionalBranchPrefix: "{{#if (or (containsString packageFileDir 'dev/') (containsString packageFileDir 'prod/'))}}{{replace '(.*?)\\/.*' '$1' packageFileDir}}-{{else}}{{/if}}",
+  commitMessagePrefix: "{{#if (or (containsString packageFileDir 'dev') (containsString packageFileDir 'prod'))}}[{{replace '(.*?)\\/.*' '$1' packageFileDir}}] {{else}}{{/if}}",
+}

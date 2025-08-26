@@ -1,0 +1,65 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: renovate
+
+spec:
+  schedule: "0 */6 * * *"
+  timeZone: Asia/Tokyo
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 1800
+      template:
+        spec:
+          restartPolicy: Never
+          volumes:
+            - name: config
+              configMap:
+                name: config
+            - name: entrypoint
+              configMap:
+                name: entrypoint
+                defaultMode: 0755
+            - name: key
+              secret:
+                secretName: key
+
+          containers:
+            - name: renovate
+              image: renovate/renovate:latest
+              imagePullPolicy: Always
+              command:
+                - /opt/renovate/entrypoint.sh
+              resources:
+                requests:
+                  memory: 64Mi
+                limits:
+                  memory: 1Gi
+
+              envFrom:
+                - secretRef:
+                    name: aws-eks-addon-lookup
+              env:
+                - name: APP_ID
+                  value: "<your-app-id>"
+                - name: INSTALLATION_ID
+                  value: "<your-installation-id>"
+                - name: PRIVATE_KEY_FILE
+                  value: /secrets/key.pem
+                - name: LOG_LEVEL
+                  value: "debug"
+                - name: RENOVATE_CONFIG_FILE
+                  value: "/opt/renovate/renovate-bot.js"
+
+              volumeMounts:
+                - name: config
+                  subPath: renovate-bot.js
+                  mountPath: /opt/renovate/renovate-bot.js
+                - name: entrypoint
+                  subPath: entrypoint.sh
+                  mountPath: /opt/renovate/entrypoint.sh
+                - name: key
+                  subPath: key.pem
+                  mountPath: /secrets/key.pem

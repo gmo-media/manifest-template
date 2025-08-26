@@ -1,0 +1,27 @@
+{{- range $group, $_ := $.Values.groups }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ $.Release.Name }}-group-{{ $group }}-header
+  namespace: {{ $.Release.Namespace }}
+
+spec:
+  headers:
+    customRequestHeaders:
+      X-Forward-Auth-Group: {{ $group }}
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ $.Release.Name }}-group-{{ $group }}
+  namespace: {{ $.Release.Namespace }}
+
+spec:
+  chain:
+    middlewares:
+      - name: {{ $.Release.Name }}-group-{{ $group }}-header
+      - name: {{ $.Release.Name }}-core
+
+{{- end }}

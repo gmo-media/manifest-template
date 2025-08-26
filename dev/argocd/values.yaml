@@ -1,0 +1,425 @@
+global:
+  domain: cd.example.com
+
+redis-ha:
+  enabled: true
+  redis:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 150Mi
+
+  sentinel:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 10Mi
+      limits:
+        # https://github.com/argoproj/argo-cd/issues/16360#issuecomment-1890805987
+        cpu: 100m
+    lifecycle:
+      postStart:
+        exec:
+          # https://github.com/argoproj/argo-cd/issues/16360#issuecomment-1890805987
+          command: ["/bin/sh", "-c", "sleep 30; redis-cli -p 26379 sentinel reset argocd"]
+
+  haproxy:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 100Mi
+
+controller:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 200m
+      memory: 4Gi
+    limits:
+      memory: 4Gi
+
+dex:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 30Mi
+
+server:
+  replicas: 2
+  resources:
+    requests:
+      cpu: 50m
+      memory: 100Mi
+
+repoServer:
+  replicas: 2
+  resources:
+    requests:
+      cpu: 50m
+      memory: 250Mi
+
+  volumes:
+    # https://github.com/argoproj/argo-cd/issues/5202#issuecomment-2081661930
+    - name: helm-replace
+      configMap:
+        name: helm-replace
+        defaultMode: 0777
+    # https://github.com/viaduct-ai/kustomize-sops#argo-cd-integration-
+    # 1. Define an emptyDir volume which will hold the custom binaries
+    - name: custom-tools
+      emptyDir: {}
+    - name: age-key
+      secret:
+        secretName: age-key
+
+  # https://github.com/viaduct-ai/kustomize-sops#argo-cd-integration-
+  # 2. Use an init container to download/copy custom binaries into the emptyDir
+  initContainers:
+    - name: install-ksops
+      image: viaductoss/ksops:v4.3.3
+      # https://github.com/viaduct-ai/kustomize-sops/pull/264
+      # image: ghcr.io/motoki317/ksops:v4.4.0
+      command: ["/bin/sh", "-c"]
+      args:
+        - echo "Installing KSOPS...";
+          mv ksops /custom-tools/;
+          mv kustomize /custom-tools/;
+          echo "Done.";
+      volumeMounts:
+        - mountPath: /custom-tools
+          name: custom-tools
+
+  volumeMounts:
+    - name: helm-replace
+      mountPath: /usr/local/sbin/helm
+      subPath: helm
+    # https://github.com/viaduct-ai/kustomize-sops#argo-cd-integration-
+    # 3. Volume mount the custom binary to the bin directory (overriding the existing version)
+    - mountPath: /usr/local/bin/kustomize
+      name: custom-tools
+      subPath: kustomize
+    - mountPath: /usr/local/bin/ksops
+      name: custom-tools
+      subPath: ksops
+    - mountPath: /age-key/key.txt
+      name: age-key
+      subPath: key.txt
+
+  env:
+    - name: HELM_BIN
+      value: /usr/local/bin/helm
+    - name: SOPS_AGE_KEY_FILE
+      value: /age-key/key.txt
+
+applicationSet:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 10m
+      memory: 50Mi
+
+configs:
+  cm:
+    kustomize.buildOptions: "--enable-alpha-plugins --enable-exec --load-restrictor LoadRestrictionsNone --enable-helm"
+    # https://argo-cd.readthedocs.io/en/stable/user-guide/resource_tracking/
+    application.resourceTrackingMethod: "annotation"
+    ui.bannercontent: "Development"
+    ui.bannerpermanent: "true"
+
+    # https://argo-cd.readthedocs.io/en/stable/operator-manual/user-management/#existing-oidc-provider
+    oidc.config: |
+      name: Google
+      issuer: https://accounts.google.com
+      clientID: "<your-actual-client-id>.apps.googleusercontent.com"
+      clientSecret: $oidc.google.clientSecret
+      requestedScopes: ["openid", "email", "profile"]
+
+  # https://argo-cd.readthedocs.io/en/stable/operator-manual/server-commands/additional-configuration-method/
+  params:
+    controller.log.level: "warn"
+    server.insecure: "true"
+    server.log.level: "warn"
+    reposerver.log.level: "warn"
+    applicationsetcontroller.log.level: "warn"
+    notificationscontroller.log.level: "warn"
+
+  secret:
+    createSecret: false
+
+  # https://argo-cd.readthedocs.io/en/stable/operator-manual/rbac/
+  rbac:
+    policy.default: "role:readonly"
+    # Replace this with actual sub values, or group names
+    policy.csv: |
+      g, admin-group@example.com, role:admin
+      g, <sub-value-which-is-usually-numeric>, role:admin
+
+  # Development color (yellow) example:
+  styles: |
+    .ui-banner-text {
+      color: #141419;
+    }
+    .ui-banner {
+      background-color: #ffcc00;
+    }
+  # Production color (red) example:
+#  styles: |
+#    .ui-banner-text {
+#      color: #f8f8f8;
+#    }
+#    .ui-banner {
+#      background-color: #e50808;
+#    }
+
+# Default templates and triggers: https://github.com/argoproj/argo-cd/blob/master/notifications_catalog/install.yaml
+notifications:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 50Mi
+
+  secret:
+    create: false
+  notifiers:
+    service.slack: |
+      token: $slack-token
+  subscriptions:
+    - triggers:
+        - on-deployed
+        - on-health-degraded
+        - on-sync-failed
+        - on-sync-running
+        - on-sync-status-unknown
+        - on-suspended
+      recipients:
+        - slack:infra-test
+      selector: skip-default-notification!=true
+
+  templates:
+    template.app-deployed: |
+      message: |
+        {{if eq .serviceType "slack"}}:white_check_mark:{{end}} {{.app.metadata.name}} is up and running.
+      slack:
+        attachments: |
+          [{
+            "title": "{{ .app.metadata.name }}",
+            "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+            "color": "#18be52",
+            "fields": [
+            {
+              "title": "Sync Status",
+              "value": "{{.app.status.sync.status}}",
+              "short": true
+            },
+            {
+              "title": {{- if .app.spec.source }} "Repository" {{- else if .app.spec.sources }} "Repositories" {{- end }},
+              "value": {{- if .app.spec.source }} ":arrow_heading_up: {{ .app.spec.source.repoURL }}" {{- else if .app.spec.sources }} "{{- range $index, $source := .app.spec.sources }}{{ if $index }}\n{{ end }}:arrow_heading_up: {{ $source.repoURL }}{{- end }}" {{- end }},
+              "short": true
+            },
+            {
+              "title": "Revision",
+              "value": "{{.app.status.sync.revision}}",
+              "short": true
+            }
+            {{range $index, $c := .app.status.conditions}}
+            ,
+            {
+              "title": "{{$c.type}}",
+              "value": "{{ $c.message | js }}",
+              "short": true
+            }
+            {{end}}
+            ]
+          }]
+        deliveryPolicy: Post
+        groupingKey: ""
+        notifyBroadcast: false
+
+    template.app-health-degraded: |
+      message: |
+        {{if eq .serviceType "slack"}}:exclamation:{{end}} {{.app.metadata.name}} has degraded.
+      slack:
+        attachments: |
+          [{
+            "title": "{{ .app.metadata.name}}",
+            "title_link": "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+            "color": "#f4c030",
+            "fields": [
+            {
+              "title": "Health Status",
+              "value": "{{.app.status.health.status}}",
+              "short": true
+            },
+            {
+              "title": {{- if .app.spec.source }} "Repository" {{- else if .app.spec.sources }} "Repositories" {{- end }},
+              "value": {{- if .app.spec.source }} ":arrow_heading_up: {{ .app.spec.source.repoURL }}" {{- else if .app.spec.sources }} "{{- range $index, $source := .app.spec.sources }}{{ if $index }}\n{{ end }}:arrow_heading_up: {{ $source.repoURL }}{{- end }}" {{- end }},
+              "short": true
+            }
+            {{range $index, $c := .app.status.conditions}}
+            ,
+            {
+              "title": "{{$c.type}}",
+              "value": "{{ $c.message | js }}",
+              "short": true
+            }
+            {{end}}
+            ]
+          }]
+        deliveryPolicy: Post
+        groupingKey: ""
+        notifyBroadcast: false
+
+    template.app-sync-failed: |
+      message: |
+        {{if eq .serviceType "slack"}}:exclamation:{{end}} {{.app.metadata.name}} has failed to sync.
+      slack:
+        attachments: |
+          [{
+            "title": "{{ .app.metadata.name}}",
+            "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+            "color": "#E96D76",
+            "fields": [
+            {
+              "title": "Sync Status",
+              "value": "{{.app.status.sync.status}}",
+              "short": true
+            },
+            {
+              "title": {{- if .app.spec.source }} "Repository" {{- else if .app.spec.sources }} "Repositories" {{- end }},
+              "value": {{- if .app.spec.source }} ":arrow_heading_up: {{ .app.spec.source.repoURL }}" {{- else if .app.spec.sources }} "{{- range $index, $source := .app.spec.sources }}{{ if $index }}\n{{ end }}:arrow_heading_up: {{ $source.repoURL }}{{- end }}" {{- end }},
+              "short": true
+            }
+            {{range $index, $c := .app.status.conditions}}
+            ,
+            {
+              "title": "{{$c.type}}",
+              "value": "{{ $c.message | js }}",
+              "short": true
+            }
+            {{end}}
+            ]
+          }]
+        deliveryPolicy: Post
+        groupingKey: ""
+        notifyBroadcast: false
+
+    template.app-sync-running: |
+      message: |
+        {{if eq .serviceType "slack"}}:eyes:{{end}} {{.app.metadata.name}} has started syncing.
+      slack:
+        attachments: |
+          [{
+            "title": "{{ .app.metadata.name}}",
+            "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+            "color": "#0DADEA",
+            "fields": [
+            {
+              "title": "Sync Status",
+              "value": "{{.app.status.sync.status}}",
+              "short": true
+            },
+            {
+              "title": {{- if .app.spec.source }} "Repository" {{- else if .app.spec.sources }} "Repositories" {{- end }},
+              "value": {{- if .app.spec.source }} ":arrow_heading_up: {{ .app.spec.source.repoURL }}" {{- else if .app.spec.sources }} "{{- range $index, $source := .app.spec.sources }}{{ if $index }}\n{{ end }}:arrow_heading_up: {{ $source.repoURL }}{{- end }}" {{- end }},
+              "short": true
+            }
+            {{range $index, $c := .app.status.conditions}}
+            ,
+            {
+              "title": "{{$c.type}}",
+              "value": "{{ $c.message | js }}",
+              "short": true
+            }
+            {{end}}
+            ]
+          }]
+        deliveryPolicy: Post
+        groupingKey: ""
+        notifyBroadcast: false
+
+    template.app-sync-status-unknown: |
+      message: |
+        {{if eq .serviceType "slack"}}:exclamation:{{end}} {{.app.metadata.name}} sync status is unknown.
+      slack:
+        attachments: |
+          [{
+            "title": "{{ .app.metadata.name}}",
+            "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+            "color": "#E96D76",
+            "fields": [
+            {
+              "title": "Sync Status",
+              "value": "{{.app.status.sync.status}}",
+              "short": true
+            },
+            {
+              "title": {{- if .app.spec.source }} "Repository" {{- else if .app.spec.sources }} "Repositories" {{- end }},
+              "value": {{- if .app.spec.source }} ":arrow_heading_up: {{ .app.spec.source.repoURL }}" {{- else if .app.spec.sources }} "{{- range $index, $source := .app.spec.sources }}{{ if $index }}\n{{ end }}:arrow_heading_up: {{ $source.repoURL }}{{- end }}" {{- end }},
+              "short": true
+            }
+            {{range $index, $c := .app.status.conditions}}
+            ,
+            {
+              "title": "{{$c.type}}",
+              "value": "{{ $c.message | js }}",
+              "short": true
+            }
+            {{end}}
+            ]
+          }]
+        deliveryPolicy: Post
+        groupingKey: ""
+        notifyBroadcast: false
+
+  triggers:
+    trigger.on-created: |
+      - description: Application is created.
+        oncePer: app.metadata.name
+        send:
+        - app-created
+        when: "true"
+    trigger.on-deleted: |
+      - description: Application is deleted.
+        oncePer: app.metadata.name
+        send:
+        - app-deleted
+        when: app.metadata.deletionTimestamp != nil
+    trigger.on-deployed: |
+      - description: Application is synced and healthy. Triggered once per commit.
+        oncePer: app.status.operationState?.syncResult?.revision
+        send:
+        - app-deployed
+        when: app.status.operationState != nil and app.status.operationState.phase in ['Succeeded']
+          and app.status.health.status == 'Healthy'
+    trigger.on-health-degraded: |
+      - description: Application has degraded
+        send:
+        - app-health-degraded
+        when: app.status.health.status == 'Degraded'
+    trigger.on-sync-failed: |
+      - description: Application syncing has failed
+        send:
+        - app-sync-failed
+        when: app.status.operationState != nil and app.status.operationState.phase in ['Error',
+          'Failed']
+    trigger.on-sync-running: |
+      - description: Application is being synced
+        send:
+        - app-sync-running
+        when: app.status.operationState != nil and app.status.operationState.phase in ['Running']
+    trigger.on-sync-status-unknown: |
+      - description: Application status is 'Unknown'
+        send:
+        - app-sync-status-unknown
+        when: app.status.sync.status == 'Unknown'
+    trigger.on-sync-succeeded: |
+      - description: Application syncing has succeeded
+        send:
+        - app-sync-succeeded
+        when: app.status.operationState != nil and app.status.operationState.phase in ['Succeeded']
+
+    trigger.on-suspended: |
+      - description: Application is suspended.
+        send:
+        - app-suspended
+        when: app.status.health.status == 'Suspended'

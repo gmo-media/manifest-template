@@ -1,0 +1,18 @@
+helmGlobals:
+  chartHome: ../../base
+
+helmCharts:
+  - name: traefik-forward-auth
+    includeCRDs: true
+    namespace: auth
+    releaseName: auth
+    valuesInline:
+      authHosts:
+        - auth.example.com
+      hosts:
+        - example.com
+      oidc:
+        clientID: "<your-actual-client-id>.apps.googleusercontent.com"
+
+generators:
+  - ksops.yaml

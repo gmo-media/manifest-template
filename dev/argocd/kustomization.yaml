@@ -1,0 +1,21 @@
+helmCharts:
+  - repo: oci://ghcr.io/argoproj/argo-helm
+    name: argo-cd
+    version: "8.3.0"
+    includeCRDs: true
+    namespace: argocd
+    releaseName: argocd
+    valuesFile: values.yaml
+
+resources:
+  - ingress-route.yaml
+  - repo-server-cr.yaml
+
+configMapGenerator:
+  - name: helm-replace
+    namespace: argocd
+    files:
+      - config/helm
+
+generators:
+  - ksops.yaml

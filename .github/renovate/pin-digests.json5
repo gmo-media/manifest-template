@@ -1,0 +1,19 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+      "matchCurrentValue": "/^main|master|latest$/",
+      "pinDigests": true,
+    },
+    // Ignore some dependencies that are intended to be used with "latest"
+    {
+      "matchDatasources": ["docker"],
+      "matchDepNames": [
+        "amazon/aws-cli",
+        "renovate/renovate",
+      ],
+      "pinDigests": false,
+    }
+  ]
+}

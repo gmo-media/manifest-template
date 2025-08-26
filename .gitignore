@@ -1,0 +1,8 @@
+/.crd
+
+# age key name
+key.txt
+
+# Kustomize pulls charts into ./charts directory by default
+# https://github.com/kubernetes-sigs/kustomize/blob/master/examples/chart.md
+charts

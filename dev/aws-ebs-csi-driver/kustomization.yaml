@@ -1,0 +1,11 @@
+helmCharts:
+  - repo: https://kubernetes-sigs.github.io/aws-ebs-csi-driver
+    name: aws-ebs-csi-driver
+    version: "2.48.0"
+    includeCRDs: true
+    namespace: aws-ebs-csi-driver
+    releaseName: aws-ebs-csi-driver
+    valuesFile: values.yaml
+
+resources:
+  - sc-gp3.yaml
