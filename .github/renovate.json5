@@ -9,11 +9,11 @@
     ':automergeDigest',
     ':automergePatch',
     'helpers:pinGitHubActionDigests',
-    'github>gmo-media/general-manifest//.github/renovate/auto-merge.json5',
-    'github>gmo-media/general-manifest//.github/renovate/labels.json5',
-    'github>gmo-media/general-manifest//.github/renovate/minimum-release-age.json5',
-    'github>gmo-media/general-manifest//.github/renovate/pin-digests.json5',
-    'github>gmo-media/general-manifest//.github/renovate/regex-manager.json5'
+    'github>gmo-media/manifest-template//.github/renovate/auto-merge.json5',
+    'github>gmo-media/manifest-template//.github/renovate/labels.json5',
+    'github>gmo-media/manifest-template//.github/renovate/minimum-release-age.json5',
+    'github>gmo-media/manifest-template//.github/renovate/pin-digests.json5',
+    'github>gmo-media/manifest-template//.github/renovate/regex-manager.json5'
   ],
   platform: 'github',
   platformAutomerge: true,
