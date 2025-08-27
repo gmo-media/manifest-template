@@ -10,6 +10,7 @@
     ':automergePatch',
     'helpers:pinGitHubActionDigests',
     'github>gmo-media/manifest-template//.github/renovate/auto-merge.json5',
+    'github>gmo-media/manifest-template//.github/renovate/ignore.json5',
     'github>gmo-media/manifest-template//.github/renovate/labels.json5',
     'github>gmo-media/manifest-template//.github/renovate/minimum-release-age.json5',
     'github>gmo-media/manifest-template//.github/renovate/pin-digests.json5',
