@@ -1,0 +1,16 @@
+helmCharts:
+  - repo: https://grafana.github.io/helm-charts
+    name: alloy
+    version: "1.2.1"
+    includeCRDs: true
+    namespace: alloy
+    releaseName: alloy-ds
+    valuesFile: ../../base/alloy/values-ds.yaml
+
+  - repo: https://grafana.github.io/helm-charts
+    name: alloy
+    version: "1.2.1"
+    includeCRDs: true
+    namespace: alloy
+    releaseName: alloy-misc
+    valuesFile: ../../base/alloy/values-misc.yaml
