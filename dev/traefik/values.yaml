@@ -59,7 +59,7 @@ metrics:
   prometheus:
     disableAPICheck: true
     serviceMonitor:
-      enabled: false
+      enabled: true
 
 ports:
   web:

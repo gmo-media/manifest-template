@@ -1,0 +1,20 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: grafana
+
+spec:
+  entryPoints:
+    - web
+
+  routes:
+    - kind: Rule
+      match: Host(`monitor.example.com`)
+      middlewares:
+        - name: auth-group-admin
+          namespace: auth
+      services:
+        - kind: Service
+          name: grafana
+          port: 80
+          scheme: http

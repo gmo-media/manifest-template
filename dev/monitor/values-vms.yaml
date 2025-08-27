@@ -1,0 +1,165 @@
+alertmanager:
+  # https://docs.victoriametrics.com/operator/api#vmalertmanagerspec
+  spec:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 50Mi
+      limits:
+        cpu: '1'
+        memory: 100Mi
+    storage:
+      volumeClaimTemplate:
+        metadata:
+          name: alertmanager-data
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          storageClassName: gp3
+          resources:
+            requests:
+              storage: 1Gi
+  config:
+    global:
+      slack_api_url: "https://hooks.slack.com/services/..."
+    route:
+      group_by: ['alertname']
+      receiver: slack-notifications
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      routes:
+        - receiver: 'null'
+          matchers:
+            - alertname = "Watchdog"
+        - receiver: 'null'
+          matchers:
+            - alertname = "InfoInhibitor"
+    receivers:
+      - name: 'null'
+      - name: slack-notifications
+        slack_configs:
+          - channel: '#infra-team-alert'
+            send_resolved: false
+            title_link: 'https://monitor.example.com/alerting/list?search={{ .CommonLabels.alertname }}'
+            color: '{{ if eq .CommonLabels.severity "info" }}good{{ else if eq .CommonLabels.severity "warning" }}warning{{ else }}danger{{ end }}'
+            title: >-
+              [{{ .CommonLabels.severity | toUpper }}]
+              {{ .CommonAnnotations.summary }}{{ if eq .Status "firing" }} (x{{ .Alerts.Firing | len }}){{ end }}
+            text: |
+              *Runbook:* {{ .CommonAnnotations.runbook_url }}
+              
+              
+              {{- range $idx, $alert := .Alerts }}
+              • {{ .Annotations.description }}
+              
+              
+              {{- end }}
+
+grafana:
+  enabled: false
+  forceDeployDatasource: true
+
+defaultDashboards:
+  defaultTimezone: Asia/Tokyo
+  labels:
+    grafana_dashboard: "1"
+
+vmsingle:
+  # https://docs.victoriametrics.com/operator/api#vmsinglespec
+  spec:
+    extraArgs:
+      enableTCP6: "true"
+      maxLabelsPerTimeseries: "100"
+    retentionPeriod: 35d
+    storage:
+      storageClassName: gp3
+      resources:
+        requests:
+          storage: 10Gi
+    resources:
+      requests:
+        cpu: 300m
+        memory: 2Gi
+      limits:
+        memory: 2Gi
+
+vmagent:
+  # https://docs.victoriametrics.com/operator/api/index.html#vmagentspec
+  spec:
+    extraArgs:
+      enableTCP6: "true"
+    # Select all monitoring resources in the cluster (e.g. VMServiceScrape)
+    selectAllByDefault: true
+    scrapeInterval: 1m
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        memory: 256Mi
+
+vmalert:
+  spec:
+    extraArgs:
+      enableTCP6: "true"
+    evaluationInterval: 1m
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 128Mi
+
+kubelet:
+  vmScrape:
+    spec:
+      interval: 1m
+
+kubeControllerManager:
+  enabled: false
+
+kubeEtcd:
+  enabled: false
+
+kubeScheduler:
+  enabled: false
+
+kube-state-metrics:
+  extraArgs:
+    - >-
+      --metric-labels-allowlist=nodes=[
+      karpenter.sh/nodepool,
+      node.kubernetes.io/instance-type,
+      karpenter.sh/capacity-type,
+      topology.kubernetes.io/region,
+      topology.kubernetes.io/zone
+      ]
+
+prometheus-node-exporter:
+  prometheus:
+    monitor:
+      attachMetadata:
+        node: true
+      relabelings:
+        - action: replace
+          sourceLabels: [__meta_kubernetes_pod_node_name]
+          targetLabel: nodename
+        - action: replace
+          sourceLabels: [__meta_kubernetes_node_label_karpenter_sh_nodepool]
+          targetLabel: nodepool
+  resources:
+    requests:
+      cpu: 10m
+      memory: 30Mi
+
+victoria-metrics-operator:
+  operator:
+    # Convert ServiceMonitor into VMServiceScrape with ownerReferences
+    enable_converter_ownership: true
+  resources:
+    requests:
+      cpu: 10m
+      memory: 80Mi
+    limits:
+      cpu: 100m
+      memory: 120Mi
