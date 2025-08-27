@@ -6,7 +6,7 @@ metadata:
     grafana_datasource: "1"
 
 data:
-  datasource.yaml: |
+  victoria-logs.yaml: |
     apiVersion: 1
     datasources:
       - name: VictoriaLogs
