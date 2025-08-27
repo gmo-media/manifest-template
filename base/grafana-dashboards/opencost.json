@@ -24,7 +24,7 @@
   "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 43,
+  "id": 212,
   "links": [],
   "panels": [
     {
@@ -1655,8 +1655,8 @@
     "list": [
       {
         "current": {
-          "text": "opencost-archive-vm",
-          "value": "eem9khdirkcn4f"
+          "text": "zz-opencost-archive-vm",
+          "value": "PD142B78E47B007E1"
         },
         "includeAll": false,
         "label": "Datasource",
@@ -1699,5 +1699,5 @@
   "timezone": "",
   "title": "Cluster / OpenCost",
   "uid": "fARuElT4z",
-  "version": 7
+  "version": 1
 }
