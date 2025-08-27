@@ -25,4 +25,5 @@ helmCharts:
     valuesFile: values-vms.yaml
 
 resources:
+  - ../../base/grafana-dashboards
   - ingress-route.yaml

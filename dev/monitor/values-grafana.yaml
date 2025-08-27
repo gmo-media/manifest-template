@@ -48,6 +48,7 @@ sidecar:
     enabled: true
     label: grafana_datasource
     labelValue: "1"
+    searchNamespace: ALL
 
 serviceMonitor:
   enabled: true
