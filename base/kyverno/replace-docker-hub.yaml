@@ -1,0 +1,52 @@
+# We need to use MutatingWebhookConfiguration to mutate Pod spec, since any controller in the cluster can submit Pods dynamically.
+# https://kyverno.io/policies/other/replace-image-registry-with-harbor/replace-image-registry-with-harbor/
+# https://www.reddit.com/r/kubernetes/comments/1ipdwap/struggling_with_docker_rate_limits_considering_a/
+# https://pastebin.com/7hAkyweT
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: replacer-docker-hub
+  annotations:
+    policies.kyverno.io/title: Replace Docker Hub Images with ECR pull-thru-cache
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/subject: Pod
+    pod-policies.kyverno.io/autogen-controllers: none
+
+spec:
+  webhookConfiguration:
+    failurePolicy: Ignore
+
+  rules:
+    - name: redirect-docker
+      skipBackgroundRequests: true
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              operations:
+                - CREATE
+                - UPDATE
+
+      mutate:
+        foreach:
+          - list: "request.object.spec.initContainers[]"
+            patchStrategicMerge:
+              spec:
+                initContainers: &patch
+                  - name: "{{ element.name }}"
+                    image: >-
+                      {{
+                      regex_replace_all('^docker.io/(.*)$',
+                        regex_replace_all('^[^/.:]+/[^/.:]+(:|@|$)',
+                          regex_replace_all('^[^/.:]+(:|@|$)',
+                            regex_replace_all('^docker.io/([^/.:]+)(:|@|$)', '{{ element.image }}', 'docker.io/library/$1$2'),
+                          'library/$0'),
+                        'docker.io/$0'),
+                      '<aws-account-id>.dkr.ecr.ap-northeast-1.amazonaws.com/docker-hub/$1')
+                      }}
+
+          - list: "request.object.spec.containers[]"
+            patchStrategicMerge:
+              spec:
+                containers: *patch

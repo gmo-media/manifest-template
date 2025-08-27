@@ -1,0 +1,26 @@
+features:
+  logging:
+    verbosity: 1
+
+admissionController:
+  replicas: 3
+  container:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
+      limits:
+        memory: 128Mi
+
+backgroundController:
+  enabled: false
+cleanupController:
+  enabled: false
+reportsController:
+  enabled: false
+
+crds:
+  migration:
+    enabled: false
+policyReportsCleanup:
+  enabled: false
