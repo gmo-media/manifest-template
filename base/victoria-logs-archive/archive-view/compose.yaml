@@ -3,7 +3,7 @@ volumes:
 
 services:
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:latest@sha256:a1701c2180249361737a99a01bc770db39381640e4d631825d38ff4535efa47d
     ports:
       - "3000:3000"
     environment:
@@ -14,7 +14,7 @@ services:
       - ./config/vl-datasource.yaml:/etc/grafana/provisioning/datasources/vl-datasource.yaml:ro
 
   vlselect:
-    image: victoriametrics/victoria-logs:latest
+    image: victoriametrics/victoria-logs:latest@sha256:6134f8a5e88a763875f1c0b96459931a4b28c7a0ab31cb9d2e18261def1adc31
     command:
       - --httpListenAddr=:9471
       - --storageNode=vlstorage-0:9491
@@ -22,7 +22,7 @@ services:
       - --storageNode=vlstorage-2:9491
 
   vlstorage-0: &vlstorage
-    image: victoriametrics/victoria-logs:latest
+    image: victoriametrics/victoria-logs:latest@sha256:6134f8a5e88a763875f1c0b96459931a4b28c7a0ab31cb9d2e18261def1adc31
     command:
       - --httpListenAddr=:9491
       - --retentionPeriod=100y
