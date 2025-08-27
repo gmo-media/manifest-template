@@ -20,11 +20,22 @@ kustomize build https://github.com/kubernetes-sigs/aws-load-balancer-controller/
 python3 openapi2jsonschema.py crd.yaml && rm crd.yaml
 
 # renovate:github-url
-python3 openapi2jsonschema.py https://raw.githubusercontent.com/argoproj/argo-cd/v3.1.0/manifests/install.yaml
+python3 openapi2jsonschema.py https://raw.githubusercontent.com/argoproj/argo-cd/v3.1.1/manifests/install.yaml
 
 # renovate:image-tag imageName=public.ecr.aws/karpenter/karpenter
-helm template --include-crds oci://public.ecr.aws/karpenter/karpenter --version "1.0.8" > crd.yaml
+helm template --include-crds oci://public.ecr.aws/karpenter/karpenter --set settings.clusterName=test --version "1.6.2" > crd.yaml
 python3 openapi2jsonschema.py crd.yaml && rm crd.yaml
 
 # renovate:github-url
 python3 openapi2jsonschema.py https://raw.githubusercontent.com/traefik/traefik/v3.5.0/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
+
+# renovate:github-url
+python3 openapi2jsonschema.py https://github.com/kyverno/kyverno/releases/download/v1.15.1/install.yaml
+
+# renovate:general datasource=helm depName=prometheus-operator-crds registryUrl=https://prometheus-community.github.io/helm-charts
+helm template --include-crds --repo https://prometheus-community.github.io/helm-charts --set settings.clusterName=test prometheus-operator-crds --version "23.0.0" > crd.yaml
+python3 openapi2jsonschema.py crd.yaml && rm crd.yaml
+
+# renovate:general datasource=helm depName=victoria-metrics-k8s-stack registryUrl=https://victoriametrics.github.io/helm-charts/
+helm template --include-crds --repo https://victoriametrics.github.io/helm-charts/ --set settings.clusterName=test victoria-metrics-k8s-stack --version "0.59.3" > crd.yaml
+python3 openapi2jsonschema.py crd.yaml && rm crd.yaml
