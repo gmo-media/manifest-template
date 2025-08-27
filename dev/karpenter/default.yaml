@@ -19,7 +19,7 @@ spec:
   kubelet:
     maxPods: 110
     kubeReserved:
-      memory: 412Mi # default = 255Mi + 11Mi * maxPods
+      memory: 255Mi # Be conservative here considering DaemonSet resources (default = 255Mi + 11Mi * maxPods)
 
   metadataOptions:
     httpProtocolIPv6: enabled
