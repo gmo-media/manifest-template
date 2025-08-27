@@ -1,0 +1,3 @@
+resources:
+  - archive-cronjob.yaml
+  - archive-cronjob-sa.yaml

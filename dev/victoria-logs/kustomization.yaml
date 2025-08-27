@@ -1,0 +1,20 @@
+helmCharts:
+  - repo: https://victoriametrics.github.io/helm-charts/
+    name: victoria-logs-cluster
+    version: "0.0.9"
+    includeCRDs: true
+    namespace: victoria-logs
+    releaseName: vl
+    valuesFile: values.yaml
+
+resources:
+  - datasource-cm.yaml
+  - sa.yaml
+  - ../../base/victoria-logs-archive
+
+configMapGenerator:
+  # To activate hash transformer, configMapGenerator needs to be in the same kustomization.yaml as helmCharts.
+  - name: archiver-script
+    namespace: victoria-logs
+    files:
+      - ../../base/victoria-logs-archive/config/archive.sh

@@ -1,0 +1,98 @@
+serviceAccount:
+  name: victoria-logs
+
+vlinsert:
+  replicaCount: 2
+  resources:
+    requests:
+      memory: 100Mi
+    limits:
+      memory: 100Mi
+  podDisruptionBudget: &pdb
+    enabled: true
+    maxUnavailable: 1
+  topologySpreadConstraints:
+    - maxSkew: 1
+      minDomains: 2
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app: vlinsert
+    - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          app: vlinsert
+  extraArgs:
+    enableTCP6: "true"
+    defaultMsgValue: "-"
+
+vlselect:
+  replicaCount: 1
+  resources:
+    requests:
+      memory: 200Mi
+    limits:
+      memory: 200Mi
+  extraArgs:
+    enableTCP6: "true"
+    memory.allowedPercent: "90"
+    search.maxConcurrentRequests: "1"
+
+vlstorage:
+  replicaCount: 3
+  resources:
+    requests:
+      memory: 512Mi
+    limits:
+      memory: 512Mi
+  podDisruptionBudget: *pdb
+  persistentVolume:
+    storageClassName: gp3
+    size: 5Gi
+  topologySpreadConstraints:
+    - maxSkew: 1
+      minDomains: 2
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app: vlstorage
+    - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          app: vlstorage
+  extraArgs:
+    enableTCP6: "true"
+    retentionPeriod: 35d
+
+  extraVolumes:
+    - name: archiver-script
+      configMap:
+        name: archiver-script
+        defaultMode: 0755
+  extraContainers:
+    # CronJob executes into this container via "kubectl exec"
+    - name: archiver
+      image: amazon/aws-cli:latest
+      command:
+        - /bin/bash
+        - -c
+        - |
+          yum install -y tar # tar is not present in amazon/aws-cli by default
+          trap 'echo "Received SIGTERM, shutting down gracefully..."; exit 0' TERM
+          sleep infinity &
+          wait $!
+      env:
+        - name: BUCKET
+          value: <your-archive-s3-bucket>
+      volumeMounts:
+        - name: vlstorage-volume
+          mountPath: /storage
+          readOnly: true
+        - name: archiver-script
+          mountPath: /scripts

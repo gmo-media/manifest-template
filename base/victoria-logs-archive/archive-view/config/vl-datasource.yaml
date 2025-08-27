@@ -1,0 +1,11 @@
+apiVersion: 1
+datasources:
+  - name: VictoriaLogs
+    type: victoriametrics-logs-datasource
+    access: proxy
+    url: http://vlselect:9471/
+    basicAuth: false
+    isDefault: false
+    jsonData:
+      httpMethod: POST
+    editable: true

@@ -12,6 +12,7 @@
       "matchDepNames": [
         "amazon/aws-cli",
         "renovate/renovate",
+        "bitnami/kubectl",
       ],
       "pinDigests": false,
     }

@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vlstorage-archive
+
+spec:
+  timeZone: Asia/Tokyo
+  schedule: "0 2 * * *"
+
+  jobTemplate:
+    spec:
+      backoffLimit: 0 # No retry
+      activeDeadlineSeconds: 3600
+
+      # Pod template
+      template:
+        metadata:
+          annotations:
+            karpenter.sh/do-not-disrupt: "true"
+
+        spec:
+          serviceAccountName: vlstorage-archive
+          restartPolicy: OnFailure
+          containers:
+            - name: trigger
+              image: bitnami/kubectl:latest
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  set -euxo pipefail
+                  
+                  # Get namespace from current pod
+                  NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+                  
+                  # Get all pods from the vlstorage StatefulSet
+                  PODS=$(kubectl get pods -n "${NAMESPACE}" \
+                    -l app.kubernetes.io/name=victoria-logs-cluster,app=vlstorage \
+                    -o jsonpath='{.items[*].metadata.name}')
+                  
+                  # Archive logs on each pod
+                  for POD in ${PODS}; do
+                    echo "Processing pod: ${POD}"
+                    kubectl exec -n "${NAMESPACE}" "${POD}" -c archiver -- /scripts/archive.sh
+                    echo "Successfully archived logs on ${POD}"
+                  done

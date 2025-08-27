@@ -1,0 +1,41 @@
+volumes:
+  grafana:
+
+services:
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      GF_INSTALL_PLUGINS: victoriametrics-logs-datasource
+    volumes:
+      - grafana:/var/lib/grafana
+      - ./config/grafana.ini:/etc/grafana/grafana.ini:ro
+      - ./config/vl-datasource.yaml:/etc/grafana/provisioning/datasources/vl-datasource.yaml:ro
+
+  vlselect:
+    image: victoriametrics/victoria-logs:latest
+    command:
+      - --httpListenAddr=:9471
+      - --storageNode=vlstorage-0:9491
+      - --storageNode=vlstorage-1:9491
+      - --storageNode=vlstorage-2:9491
+
+  vlstorage-0: &vlstorage
+    image: victoriametrics/victoria-logs:latest
+    command:
+      - --httpListenAddr=:9491
+      - --retentionPeriod=100y
+      - --storageDataPath=/storage
+    volumes:
+      - ./data/vlstorage-0:/storage/partitions
+
+  vlstorage-1:
+    <<: *vlstorage
+    volumes:
+      - ./data/vlstorage-1:/storage/partitions
+
+  vlstorage-2:
+    <<: *vlstorage
+    volumes:
+      - ./data/vlstorage-2:/storage/partitions
