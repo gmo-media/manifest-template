@@ -9,6 +9,7 @@ settings:
   clusterName: <your-cluster-name>
   interruptionQueue: Karpenter-<your-cluster-name>
   featureGates:
+    nodeRepair: true
     spotToSpotConsolidation: true
 
 controller:
