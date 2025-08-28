@@ -24,7 +24,7 @@
   "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 40,
+  "id": 228,
   "links": [],
   "panels": [
     {
@@ -354,7 +354,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(\nsum(rate(\n  node_cpu_seconds_total{mode!~\"idle|iowait|steal\"}\n  * on(instance) group_left(nodename)\n    (\n      node_uname_info{}\n      * on(nodename) group_left(nodename)\n      label_replace(kube_node_labels{label_karpenter_sh_nodepool=~\"$nodepool\"}, \"nodename\", \"$1\", \"node\", \"(.*)\")\n    )\n[$__rate_interval])) or vector(0)\n+\nsum(\n  rate(\n    container_cpu_usage_seconds_total{node=~\"^fargate-.+\", image!=\"\"}\n    * on(node) group_left(node)\n    kube_node_labels{label_karpenter_sh_nodepool=~\"$nodepool\"}\n  [$__rate_interval])\n) or vector(0)\n)\n\n/\n\nsum(\n  machine_cpu_cores{}\n  * on(node) group_left(node)\n  kube_node_labels{label_karpenter_sh_nodepool=~\"$nodepool\"}\n)",
+          "expr": "(\n# Normal nodes (node_expoter)\nsum(rate(\n  node_cpu_seconds_total{mode!~\"idle|iowait|steal\"}\n  * on(instance) group_left(nodename, label_karpenter_sh_nodepool)\n    (\n      node_uname_info{}\n      * on(nodename) group_left(nodename, label_karpenter_sh_nodepool)\n      label_replace(kube_node_labels{node=~\"$node\", label_karpenter_sh_nodepool=~\"$nodepool\"}, \"nodename\", \"$1\", \"node\", \"(.*)\")\n    )\n[$__rate_interval])) or vector(0)\n+\n# Fargate nodes (kube cAdvisor)\nsum(\n  rate(\n    container_cpu_usage_seconds_total{image!=\"\"}\n    * on(node) group_left(node, label_karpenter_sh_nodepool)\n    kube_node_labels{node=~\"$node\", node=~\"^fargate-.+\", label_karpenter_sh_nodepool=~\"$nodepool\"}\n  [$__rate_interval])\n) or vector(0)\n)\n\n/\n\n(\n# Normal nodes (kubelet)\nsum(\n  machine_cpu_cores{}\n  * on(node) group_left(node)\n  kube_node_labels{node=~\"$node\", node!~\"^fargate-.+\", label_karpenter_sh_nodepool=~\"$nodepool\"}\n) or vector(0)\n+\n# Fargate nodes (kube cAdvisor)\nsum(\n  kube_pod_container_resource_requests{resource=\"cpu\", node=~\"$node\", node=~\"^fargate-.+\"}\n) or vector(0)\n)",
           "instant": false,
           "interval": "",
           "legendFormat": "Utilization",
@@ -470,7 +470,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(\nsum(\n  (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)\n  * on(instance) group_left(nodename)\n    (\n      node_uname_info{}\n      * on(nodename) group_left(nodename)\n      label_replace(kube_node_labels{label_karpenter_sh_nodepool=~\"$nodepool\"}, \"nodename\", \"$1\", \"node\", \"(.*)\")\n    )\n) or vector(0)\n+\nsum(\n  container_memory_rss{node=~\"^fargate-.+\", image!=\"\"}\n  * on(node) group_left(node)\n  kube_node_labels{label_karpenter_sh_nodepool=~\"$nodepool\"}\n) or vector(0)\n)\n\n/\n\nsum(\n  machine_memory_bytes{}\n  * on(node) group_left(node)\n  kube_node_labels{label_karpenter_sh_nodepool=~\"$nodepool\"}\n)",
+          "expr": "(\n# Normal nodes (node_exporter)\nsum(\n  (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)\n  * on(instance) group_left(nodename, label_karpenter_sh_nodepool)\n    (\n      node_uname_info{}\n      * on(nodename) group_left(nodename, label_karpenter_sh_nodepool)\n      label_replace(kube_node_labels{node=~\"$node\", label_karpenter_sh_nodepool=~\"$nodepool\"}, \"nodename\", \"$1\", \"node\", \"(.*)\")\n    )\n) or vector(0)\n+\n# Fargate nodes (kube cAdvisor)\nsum(\n  container_memory_rss{image!=\"\"}\n  * on(node) group_left(node, label_karpenter_sh_nodepool)\n  kube_node_labels{node=~\"$node\", node=~\"^fargate-.+\", label_karpenter_sh_nodepool=~\"$nodepool\"}\n) or vector(0)\n)\n\n/\n\n(\n# Normal nodes (kubelet)\nsum(\n  machine_memory_bytes{}\n  * on(node) group_left(node)\n  kube_node_labels{node=~\"$node\", node!~\"^fargate-.+\", label_karpenter_sh_nodepool=~\"$nodepool\"}\n) or vector(0)\n+\n# Fargate nodes (kube cAdvisor)\nsum(\n  kube_pod_container_resource_requests{resource=\"memory\", node=~\"$node\", node=~\"^fargate-.+\"}\n) or vector(0)\n)",
           "instant": false,
           "interval": "",
           "legendFormat": "Utilization",
@@ -582,7 +582,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(\n  kube_pod_container_resource_requests{resource=\"cpu\"}\n  * on(node) group_left(node)\n  kube_node_labels{label_karpenter_sh_nodepool=~\"$nodepool\"}\n)\n\n/\n\nsum(\n  kube_node_status_allocatable{resource=\"cpu\"}\n  * on(node) group_left(node)\n  kube_node_labels{label_karpenter_sh_nodepool=~\"$nodepool\"}\n)",
+          "expr": "sum(\n  kube_pod_container_resource_requests{resource=\"cpu\"}\n  * on(node) group_left(node)\n  kube_node_labels{node=~\"$node\", label_karpenter_sh_nodepool=~\"$nodepool\"}\n)\n\n/\n\n(\n# Normal nodes (kube-state-metrics)\nsum(\n  kube_node_status_allocatable{resource=\"cpu\"}\n  * on(node) group_left(node)\n  kube_node_labels{node=~\"$node\", node!~\"^fargate-.+\", label_karpenter_sh_nodepool=~\"$nodepool\"}\n) or vector(0)\n+\n# Fargate nodes (kube cAdvisor)\nsum(\n  kube_pod_container_resource_requests{resource=\"cpu\", node=~\"$node\", node=~\"^fargate-.+\"}\n) or vector(0)\n)",
           "instant": false,
           "interval": "",
           "legendFormat": "Alloc Utilization",
@@ -694,7 +694,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(\n  kube_pod_container_resource_requests{resource=\"memory\"}\n  * on(node) group_left(node)\n  kube_node_labels{label_karpenter_sh_nodepool=~\"$nodepool\"}\n)\n\n/\n\nsum(\n  kube_node_status_allocatable{resource=\"memory\"}\n  * on(node) group_left(node)\n  kube_node_labels{label_karpenter_sh_nodepool=~\"$nodepool\"}\n)",
+          "expr": "sum (\n  kube_pod_container_resource_requests{resource=\"memory\"}\n  * on(node) group_left(node, label_karpenter_sh_nodepool)\n  kube_node_labels{node=~\"$node\", label_karpenter_sh_nodepool=~\"$nodepool\"}\n)\n\n/\n\n(\n# Normal nodes (kube-state-metrics)\nsum(\n  kube_node_status_allocatable{resource=\"memory\"}\n  * on(node) group_left(node)\n  kube_node_labels{node=~\"$node\", node!~\"^fargate-.+\", label_karpenter_sh_nodepool=~\"$nodepool\"}\n) or vector(0)\n+\n# Fargate nodes (kube cAdvisor)\nsum(\n  kube_pod_container_resource_requests{resource=\"memory\", node=~\"$node\", node=~\"^fargate-.+\"}\n) or vector(0)\n)",
           "instant": false,
           "interval": "",
           "legendFormat": "Alloc Utilization",
@@ -829,7 +829,8 @@
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "sum by (label_karpenter_sh_nodepool) (rate(\n  node_cpu_seconds_total{mode!~\"idle|iowait|steal\"}\n  * on(instance) group_left(nodename, label_karpenter_sh_nodepool)\n    (\n      node_uname_info{}\n      * on(nodename) group_left(nodename, label_karpenter_sh_nodepool)\n      label_replace(kube_node_labels{label_karpenter_sh_nodepool=~\"$nodepool\"}, \"nodename\", \"$1\", \"node\", \"(.*)\")\n    )\n[$__rate_interval])) or vector(0)\n+\nsum by (label_karpenter_sh_nodepool) (\n  rate(\n    container_cpu_usage_seconds_total{node=~\"^fargate-.+\", image!=\"\"}\n    * on(node) group_left(node, label_karpenter_sh_nodepool)\n    kube_node_labels{label_karpenter_sh_nodepool=~\"$nodepool\"}\n  [$__rate_interval])\n) or vector(0)",
+              "expr": "# Normal nodes (node_expoter)\nsum by (label_karpenter_sh_nodepool) (rate(\n  node_cpu_seconds_total{mode!~\"idle|iowait|steal\"}\n  * on(instance) group_left(nodename, label_karpenter_sh_nodepool)\n    (\n      node_uname_info{}\n      * on(nodename) group_left(nodename, label_karpenter_sh_nodepool)\n      label_replace(kube_node_labels{node=~\"$node\", label_karpenter_sh_nodepool=~\"$nodepool\"}, \"nodename\", \"$1\", \"node\", \"(.*)\")\n    )\n[$__rate_interval])) or vector(0)\n+\n# Fargate nodes (kube cAdvisor)\nsum by (label_karpenter_sh_nodepool) (\n  rate(\n    container_cpu_usage_seconds_total{image!=\"\"}\n    * on(node) group_left(node, label_karpenter_sh_nodepool)\n    kube_node_labels{node=~\"$node\", node=~\"^fargate-.+\", label_karpenter_sh_nodepool=~\"$nodepool\"}\n  [$__rate_interval])\n) or vector(0)",
+              "hide": false,
               "instant": false,
               "interval": "",
               "legendFormat": "{{ label_karpenter_sh_nodepool }}",
@@ -843,7 +844,7 @@
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "sum(\n  machine_cpu_cores{}\n  * on(node) group_left(node)\n  kube_node_labels{label_karpenter_sh_nodepool=~\"$nodepool\"}\n)",
+              "expr": "# Normal nodes (kubelet)\nsum(\n  machine_cpu_cores{}\n  * on(node) group_left(node)\n  kube_node_labels{node=~\"$node\", node!~\"^fargate-.+\", label_karpenter_sh_nodepool=~\"$nodepool\"}\n) or vector(0)\n+\n# Fargate nodes (kube cAdvisor)\nsum(\n  kube_pod_container_resource_requests{resource=\"cpu\", node=~\"$node\", node=~\"^fargate-.+\"}\n) or vector(0)",
               "hide": false,
               "instant": false,
               "legendFormat": "Total Cores",
@@ -968,7 +969,7 @@
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "sum by (label_karpenter_sh_nodepool) (\n  (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)\n  * on(instance) group_left(nodename, label_karpenter_sh_nodepool)\n    (\n      node_uname_info{}\n      * on(nodename) group_left(nodename, label_karpenter_sh_nodepool)\n      label_replace(kube_node_labels{label_karpenter_sh_nodepool=~\"$nodepool\"}, \"nodename\", \"$1\", \"node\", \"(.*)\")\n    )\n) or vector(0)\n+\nsum by (label_karpenter_sh_nodepool) (\n  container_memory_rss{node=~\"^fargate-.+\", image!=\"\"}\n  * on(node) group_left(node, label_karpenter_sh_nodepool)\n  kube_node_labels{label_karpenter_sh_nodepool=~\"$nodepool\"}\n) or vector(0)",
+              "expr": "# Normal nodes (node_exporter)\nsum by (label_karpenter_sh_nodepool) (\n  (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)\n  * on(instance) group_left(nodename, label_karpenter_sh_nodepool)\n    (\n      node_uname_info{}\n      * on(nodename) group_left(nodename, label_karpenter_sh_nodepool)\n      label_replace(kube_node_labels{node=~\"$node\", label_karpenter_sh_nodepool=~\"$nodepool\"}, \"nodename\", \"$1\", \"node\", \"(.*)\")\n    )\n) or vector(0)\n+\n# Fargate nodes (kube cAdvisor)\nsum by (label_karpenter_sh_nodepool) (\n  container_memory_rss{image!=\"\"}\n  * on(node) group_left(node, label_karpenter_sh_nodepool)\n  kube_node_labels{node=~\"$node\", node=~\"^fargate-.+\", label_karpenter_sh_nodepool=~\"$nodepool\"}\n) or vector(0)",
               "instant": false,
               "interval": "",
               "legendFormat": "{{ label_karpenter_sh_nodepool }}",
@@ -982,7 +983,7 @@
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "sum(\n  machine_memory_bytes{}\n  * on(node) group_left(node)\n  kube_node_labels{label_karpenter_sh_nodepool=~\"$nodepool\"}\n)",
+              "expr": "# Normal nodes (kubelet)\nsum(\n  machine_memory_bytes{}\n  * on(node) group_left(node)\n  kube_node_labels{node=~\"$node\", node!~\"^fargate-.+\", label_karpenter_sh_nodepool=~\"$nodepool\"}\n) or vector(0)\n+\n# Fargate nodes (kube cAdvisor)\nsum(\n  kube_pod_container_resource_requests{resource=\"memory\", node=~\"$node\", node=~\"^fargate-.+\"}\n) or vector(0)",
               "hide": false,
               "instant": false,
               "legendFormat": "Total RAM",
@@ -1100,7 +1101,7 @@
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "sum by (label_karpenter_sh_nodepool) (\n  kube_pod_container_resource_requests{resource=\"cpu\"}\n  * on(node) group_left(node, label_karpenter_sh_nodepool)\n  kube_node_labels{label_karpenter_sh_nodepool=~\"$nodepool\"}\n)",
+              "expr": "sum by (label_karpenter_sh_nodepool) (\n  kube_pod_container_resource_requests{resource=\"cpu\"}\n  * on(node) group_left(node, label_karpenter_sh_nodepool)\n  kube_node_labels{node=~\"$node\", label_karpenter_sh_nodepool=~\"$nodepool\"}\n)",
               "instant": false,
               "interval": "",
               "legendFormat": "{{ label_karpenter_sh_nodepool }}",
@@ -1114,7 +1115,7 @@
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "sum(\n  kube_node_status_allocatable{resource=\"cpu\"}\n  * on(node) group_left(node)\n  kube_node_labels{label_karpenter_sh_nodepool=~\"$nodepool\"}\n)",
+              "expr": "# Normal nodes (kube-state-metrics)\nsum(\n  kube_node_status_allocatable{resource=\"cpu\"}\n  * on(node) group_left(node)\n  kube_node_labels{node=~\"$node\", node!~\"^fargate-.+\", label_karpenter_sh_nodepool=~\"$nodepool\"}\n) or vector(0)\n+\n# Fargate nodes (kube cAdvisor)\nsum(\n  kube_pod_container_resource_requests{resource=\"cpu\", node=~\"$node\", node=~\"^fargate-.+\"}\n) or vector(0)",
               "hide": false,
               "instant": false,
               "interval": "",
@@ -1233,7 +1234,7 @@
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "sum by (label_karpenter_sh_nodepool) (\n  kube_pod_container_resource_requests{resource=\"memory\"}\n  * on(node) group_left(node, label_karpenter_sh_nodepool)\n  kube_node_labels{label_karpenter_sh_nodepool=~\"$nodepool\"}\n)",
+              "expr": "sum by (label_karpenter_sh_nodepool) (\n  kube_pod_container_resource_requests{resource=\"memory\"}\n  * on(node) group_left(node, label_karpenter_sh_nodepool)\n  kube_node_labels{node=~\"$node\", label_karpenter_sh_nodepool=~\"$nodepool\"}\n)",
               "instant": false,
               "interval": "",
               "legendFormat": "{{ label_karpenter_sh_nodepool }}",
@@ -1247,7 +1248,7 @@
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "sum(\n  kube_node_status_allocatable{resource=\"memory\"}\n  * on(node) group_left(node)\n  kube_node_labels{label_karpenter_sh_nodepool=~\"$nodepool\"}\n)",
+              "expr": "# Normal nodes (kube-state-metrics)\nsum(\n  kube_node_status_allocatable{resource=\"memory\"}\n  * on(node) group_left(node)\n  kube_node_labels{node=~\"$node\", node!~\"^fargate-.+\", label_karpenter_sh_nodepool=~\"$nodepool\"}\n) or vector(0)\n+\n# Fargate nodes (kube cAdvisor)\nsum(\n  kube_pod_container_resource_requests{resource=\"memory\", node=~\"$node\", node=~\"^fargate-.+\"}\n) or vector(0)",
               "hide": false,
               "instant": false,
               "interval": "",
@@ -2551,7 +2552,9 @@
       {
         "allValue": ".*",
         "current": {
-          "text": "All",
+          "text": [
+            "All"
+          ],
           "value": [
             "$__all"
           ]
@@ -2575,6 +2578,7 @@
         "type": "query"
       },
       {
+        "allValue": ".+",
         "current": {
           "text": "All",
           "value": [
@@ -2610,5 +2614,5 @@
   "timezone": "",
   "title": "Cluster / Nodes Overview",
   "uid": "fds74rvgq8740c",
-  "version": 30
+  "version": 2
 }
