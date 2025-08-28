@@ -50,6 +50,10 @@ spec:
         - key: "karpenter.k8s.aws/instance-generation"
           operator: Gt
           values: ["2"]
+        # If you prefer only spot instances:
+        # - key: "karpenter.sh/capacity-type"
+        #   operator: In
+        #   values: ["spot"]
   limits:
     cpu: 1000
   disruption:
