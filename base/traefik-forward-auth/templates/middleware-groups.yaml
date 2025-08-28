@@ -3,7 +3,7 @@
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
-  name: {{ $.Release.Name }}-group-{{ $group }}-header
+  name: {{ $.Release.Name }}-header-group-{{ $group }}
   namespace: {{ $.Release.Namespace }}
 
 spec:
@@ -21,7 +21,7 @@ metadata:
 spec:
   chain:
     middlewares:
-      - name: {{ $.Release.Name }}-group-{{ $group }}-header
+      - name: {{ $.Release.Name }}-header-group-{{ $group }}
       - name: {{ $.Release.Name }}-core
 
 {{- end }}
