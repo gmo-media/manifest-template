@@ -34,9 +34,9 @@ spec:
                 - /opt/renovate/entrypoint.sh
               resources:
                 requests:
-                  memory: 64Mi
+                  memory: 3Gi
                 limits:
-                  memory: 1Gi
+                  memory: 3Gi
 
               envFrom:
                 - secretRef:
