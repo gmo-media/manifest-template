@@ -17,7 +17,7 @@ spec:
   routes:
     {{- range $.Values.authHosts }}
     - kind: Rule
-      match: Host(`{{ . }}`)
+      match: Host(`{{ . }}`) && PathPrefix(`/_oauth`)
       services:
         - kind: Service
           name: {{ $.Release.Name }}
