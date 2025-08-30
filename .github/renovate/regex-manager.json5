@@ -48,7 +48,7 @@
         // Example:
         // # ... imageName=ghcr.io/traptitech/traq
         // fooTag: "0.35.5-p1"
-        "# renovate:image-tag imageName=(?<registryUrl>[^\\s/]+)/(?<depName>\\S+)\n.*?\"(?<currentValue>.+)\"\n",
+        "# renovate:image-tag imageName=(?<registryUrl>[^\\s/]+)/(?<depName>\\S+)\n.*?\"(?<currentValue>.+)\"",
       ],
       "datasourceTemplate": "docker",
       "registryUrlTemplate": "https://{{{registryUrl}}}",
