@@ -10,11 +10,12 @@
     ':automergePatch',
     'helpers:pinGitHubActionDigests',
     'github>gmo-media/manifest-template//.github/renovate/auto-merge.json5',
+    'github>gmo-media/manifest-template//.github/renovate/branch-prefix.json5',
     'github>gmo-media/manifest-template//.github/renovate/ignore.json5',
     'github>gmo-media/manifest-template//.github/renovate/labels.json5',
     'github>gmo-media/manifest-template//.github/renovate/minimum-release-age.json5',
     'github>gmo-media/manifest-template//.github/renovate/pin-digests.json5',
-    'github>gmo-media/manifest-template//.github/renovate/regex-manager.json5'
+    'github>gmo-media/manifest-template//.github/renovate/regex-manager.json5',
   ],
   platform: 'github',
   platformAutomerge: true,
@@ -31,7 +32,4 @@
       '/.+\\.ya?ml$/',
     ],
   },
-  // Group by ./dev or ./prod
-  additionalBranchPrefix: "{{#if (or (containsString packageFileDir 'dev/') (containsString packageFileDir 'prod/'))}}{{replace '(.*?)\\/.*' '$1' packageFileDir}}-{{else}}{{/if}}",
-  commitMessagePrefix: "{{#if (or (containsString packageFileDir 'dev') (containsString packageFileDir 'prod'))}}[{{replace '(.*?)\\/.*' '$1' packageFileDir}}] {{else}}{{/if}}",
 }

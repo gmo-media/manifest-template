@@ -13,7 +13,7 @@
       "description": "Auto merge up to minor in dev",
       "matchFileNames": ["dev/**"],
       "automerge": true,
-      "matchUpdateTypes": ["minor", "patch"]
+      "matchUpdateTypes": ["minor", "patch"],
     },
   ]
 }
