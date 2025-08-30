@@ -23,7 +23,7 @@ python3 openapi2jsonschema.py crd.yaml && rm crd.yaml
 python3 openapi2jsonschema.py https://raw.githubusercontent.com/argoproj/argo-cd/v3.1.1/manifests/install.yaml
 
 # renovate:image-tag imageName=public.ecr.aws/karpenter/karpenter
-helm template --include-crds oci://public.ecr.aws/karpenter/karpenter --set settings.clusterName=test --version "1.6.2" > crd.yaml
+helm template --include-crds oci://public.ecr.aws/karpenter/karpenter --set settings.clusterName=test --version "1.6.3" > crd.yaml
 python3 openapi2jsonschema.py crd.yaml && rm crd.yaml
 
 # renovate:github-url
