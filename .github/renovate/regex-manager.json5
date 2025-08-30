@@ -33,7 +33,7 @@
       "matchStrings": [
         // Example:
         // fooImage: "ghcr.io/motoki317/k8s-csi-s3:0.40.8-p1"
-        "# renovate:image-full\n.*?\"(?<registryUrl>[^\\s/]+)/(?<depName>[^\\s:]+):(?<currentValue>.+)\"\n",
+        "# renovate:image-full\n.*?\"(?<registryUrl>[^\\s/]+)/(?<depName>[^\\s:]+):(?<currentValue>.+)\"",
       ],
       "datasourceTemplate": "docker",
       "registryUrlTemplate": "https://{{{registryUrl}}}",
