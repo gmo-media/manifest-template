@@ -1,0 +1,38 @@
+opencost:
+  customPricing:
+    enabled: true
+    provider: aws
+    costModel:
+      # https://github.com/opencost/opencost/blob/develop/configs/default.json
+      description: Default prices
+      CPU: 0.05056 # ap-northeast-1 fargate pricing
+      spotCPU: 0.006655
+      RAM: 0.00553 # ap-northeast-1 fargate pricing
+      spotRAM: 0.000892
+      GPU: 0.95
+      storage: 0.00005479452
+      zoneNetworkEgress: 0.01
+      regionNetworkEgress: 0.01
+      internetNetworkEgress: 0.12
+
+      awsSpotDataRegion: ap-northeast-1
+      awsSpotDataBucket: <your-spot-datafeed-bucket-name>
+      awsSpotDataPrefix: datafeed
+      projectID: "<aws-account-id>"
+
+  exporter:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 150Mi
+
+  prometheus:
+    internal:
+      # NOTE: OpenCost expects this prometheus instance to have node_exporter data
+      enabled: true
+      namespaceName: monitor
+      port: 8428
+      serviceName: vmsingle-vms-victoria-metrics-k8s-stack
+
+  ui:
+    enabled: false

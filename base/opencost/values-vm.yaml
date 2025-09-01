@@ -1,0 +1,32 @@
+server:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 512Mi
+    limits:
+      memory: 512Mi
+  extraArgs:
+    enableTCP6: "true"
+    "search.maxConcurrentRequests": "1"
+
+  retentionPeriod: 3y
+  persistentVolume:
+    storageClassName: gp3
+    size: 5Gi
+
+  scrape:
+    enabled: true
+    config:
+      global:
+        scrape_interval: 1m
+
+      scrape_configs:
+        - job_name: opencost
+          scrape_interval: 1m
+          scrape_timeout: 10s
+          metrics_path: /metrics
+          honor_labels: true
+          scheme: http
+          static_configs:
+            - targets:
+                - opencost.opencost.svc.cluster.local:9003

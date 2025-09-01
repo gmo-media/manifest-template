@@ -1,0 +1,56 @@
+server:
+  resources:
+    requests:
+      memory: 50Mi
+    limits:
+      memory: 100Mi
+  extraArgs:
+    enableTCP6: "true"
+
+  datasource:
+    url: &url "http://vm-victoria-metrics-single-server.opencost.svc.cluster.local:8428"
+  remote:
+    write:
+      url: *url
+    read:
+      url: *url
+
+  config:
+    alerts:
+      groups:
+        - name: total-cost
+          interval: 1m
+          rules:
+            - record: sum_node_total_hourly_cost
+              # NOTE: Fargate pods are charged at pod level, not node level.
+              # Fargate pods always have 256Mi overhead in addition to pod memory requests.
+              # Actual deployment is selected by rounding up requests + overhead to the nearest configuration.
+              # https://docs.aws.amazon.com/eks/latest/userguide/fargate-pod-configuration.html
+              expr: >-
+                (sum(node_total_hourly_cost{node!~"fargate.*"}) or 0)
+                + (sum(sum by (instance) (container_cpu_allocation{node=~"fargate.*"}) * on(instance) group_left() (avg by (instance) (node_cpu_hourly_cost))) or 0)
+                + (sum(sum by (instance) (container_memory_allocation_bytes{node=~"fargate.*"} / 1024 / 1024 / 1024 + 0.25) * on(instance) group_left() (avg by (instance) (node_ram_hourly_cost))) or 0)
+        - name: namespace-cost
+          interval: 1m
+          rules:
+            - record: namespace_cpu_cost
+              expr: >-
+                sum by (namespace) (
+                  sum by (namespace, instance) (container_cpu_allocation)
+                  * on(instance) group_left() (avg by (instance) (node_cpu_hourly_cost))
+                )
+            - record: namespace_memory_cost
+              expr: >-
+                sum by (namespace) (
+                  (
+                    sum by (namespace, instance) (container_memory_allocation_bytes{node!~"fargate.*"} / 1024 / 1024 / 1024)
+                    or sum by (namespace, instance) (container_memory_allocation_bytes) * 0
+                  )
+                  * on(instance) group_left() (avg by (instance) (node_ram_hourly_cost))
+                  +
+                  (
+                    sum by (namespace, instance) (container_memory_allocation_bytes{node=~"fargate.*"} / 1024 / 1024 / 1024 + 0.25)
+                    or sum by (namespace, instance) (container_memory_allocation_bytes) * 0
+                  )
+                  * on(instance) group_left() (avg by (instance) (node_ram_hourly_cost))
+                )

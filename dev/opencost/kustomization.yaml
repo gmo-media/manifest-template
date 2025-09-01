@@ -1,0 +1,27 @@
+helmCharts:
+  - repo: https://opencost.github.io/opencost-helm-chart
+    name: opencost
+    version: "2.2.4"
+    includeCRDs: true
+    namespace: opencost
+    releaseName: opencost
+    valuesFile: ../../base/opencost/values-opencost.yaml
+
+  - repo: https://victoriametrics.github.io/helm-charts/
+    name: victoria-metrics-single
+    version: "0.24.3"
+    includeCRDs: true
+    namespace: opencost
+    releaseName: vm
+    valuesFile: ../../base/opencost/values-vm.yaml
+
+  - repo: https://victoriametrics.github.io/helm-charts/
+    name: victoria-metrics-alert
+    version: "0.25.2"
+    includeCRDs: true
+    namespace: opencost
+    releaseName: vm
+    valuesFile: ../../base/opencost/values-vm-alert.yaml
+
+resources:
+  - ../../base/opencost/datasource-cm.yaml
