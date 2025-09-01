@@ -60,6 +60,7 @@ metrics:
     disableAPICheck: true
     serviceMonitor:
       enabled: true
+      honorLabels: true
 
 ports:
   web:
