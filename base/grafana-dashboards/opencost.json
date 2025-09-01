@@ -24,7 +24,7 @@
   "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 859,
+  "id": 350,
   "links": [],
   "panels": [
     {
@@ -49,14 +49,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            }
+            "mode": "thresholds"
           },
           "mappings": [
             {
@@ -69,43 +62,129 @@
               "type": "special"
             }
           ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 9,
+        "x": 0,
+        "y": 1
+      },
+      "id": 67,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "eem9khdirkcn4f"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum_over_time(sum_node_total_hourly_cost[$__range:$__rate_interval]) / (1h / $__rate_interval)\n+\nsum(sum_over_time(\n    (\n        sum by (persistentvolume) (pv_hourly_cost)\n        * sum by (persistentvolume) (kube_persistentvolume_capacity_bytes / 1024 / 1024 / 1024)\n    )[$__range:$__rate_interval]\n)) / (1h / $__rate_interval)\n+\nsum_over_time(\n    (sum(kubecost_load_balancer_cost OR on() vector(0)) + (sum(kubecost_cluster_management_cost > 0) or vector(0.1)))[$__range:$__rate_interval]\n) / (1h / $__rate_interval)",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "total",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Cluster Cost",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
           "unit": "currencyUSD"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 11,
-        "w": 12,
-        "x": 0,
+        "w": 3,
+        "x": 9,
         "y": 1
       },
-      "id": 50,
+      "id": 64,
       "options": {
-        "displayLabels": [
-          "name"
-        ],
-        "legend": {
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "values": [
-            "value",
-            "percent"
-          ]
-        },
-        "pieType": "pie",
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [],
           "fields": "",
           "values": false
         },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.1.0",
       "targets": [
         {
           "datasource": {
@@ -121,47 +200,18 @@
           "legendFormat": "workload",
           "range": false,
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "sum(sum_over_time(\n    (\n        sum by (persistentvolume) (pv_hourly_cost)\n        * sum by (persistentvolume) (kube_persistentvolume_capacity_bytes / 1024 / 1024 / 1024)\n    )[$__range:$__rate_interval]\n)) / (1h / $__rate_interval)",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "pv",
-          "range": false,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "eem9khdirkcn4f"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "sum_over_time(\n    (sum(kubecost_load_balancer_cost OR on() vector(0)) + (sum(kubecost_cluster_management_cost > 0) or vector(0.1)))[$__range:$__rate_interval]\n) / (1h / $__rate_interval)",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "overhead",
-          "range": false,
-          "refId": "C"
         }
       ],
-      "title": "Cluster Cost",
-      "type": "piechart"
+      "title": "Workload Cost",
+      "transparent": true,
+      "type": "stat"
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "description": "Workload cost of current range",
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -239,7 +289,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.1.0",
       "targets": [
         {
           "datasource": {
@@ -272,8 +322,610 @@
           "refId": "B"
         }
       ],
-      "title": "Workload Cost",
+      "title": "Workload Cost (by namespace)",
       "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "Cluster cost of current range\n\nCluster cost = Node cost + PV cost + Overhead (cluster+LB) cost",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 27,
+        "w": 9,
+        "x": 0,
+        "y": 7
+      },
+      "id": 50,
+      "options": {
+        "displayLabels": [
+          "name"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "eem9khdirkcn4f"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum_over_time(sum_node_total_hourly_cost[$__range:$__rate_interval]) / (1h / $__rate_interval)",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "workload",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(sum_over_time(\n    (\n        sum by (persistentvolume) (pv_hourly_cost)\n        * sum by (persistentvolume) (kube_persistentvolume_capacity_bytes / 1024 / 1024 / 1024)\n    )[$__range:$__rate_interval]\n)) / (1h / $__rate_interval)",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "pv",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "eem9khdirkcn4f"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum_over_time(\n    (sum(kubecost_load_balancer_cost OR on() vector(0)) + (sum(kubecost_cluster_management_cost > 0) or vector(0.1)))[$__range:$__rate_interval]\n) / (1h / $__rate_interval)",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "overhead",
+          "range": false,
+          "refId": "C"
+        }
+      ],
+      "title": "Cluster Cost",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 3,
+        "x": 9,
+        "y": 12
+      },
+      "id": 66,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(sum_over_time(\n    (\n        sum by (persistentvolume) (pv_hourly_cost)\n        * sum by (persistentvolume) (kube_persistentvolume_capacity_bytes / 1024 / 1024 / 1024)\n    )[$__range:$__rate_interval]\n)) / (1h / $__rate_interval)",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "pv",
+          "range": false,
+          "refId": "B"
+        }
+      ],
+      "title": "PV Cost",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "PersistentVolume cost of current range",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "min": 0,
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      },
+      "id": 54,
+      "options": {
+        "displayLabels": [
+          "name"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "sortBy": "Value",
+          "sortDesc": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum by (namespace) (\n    sum_over_time((\n        sum by (persistentvolume) (pv_hourly_cost)\n        * on (persistentvolume) group_right() sum by (persistentvolume, namespace) (pod_pvc_allocation / 1024 / 1024 / 1024)\n    )[$__range:$__rate_interval])\n) / (1h / $__rate_interval)",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "{{ namespace }}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "PV Cost (by namespace)",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 3,
+        "x": 9,
+        "y": 23
+      },
+      "id": 65,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "eem9khdirkcn4f"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum_over_time(\n    (sum(kubecost_load_balancer_cost OR on() vector(0)) + (sum(kubecost_cluster_management_cost > 0) or vector(0.1)))[$__range:$__rate_interval]\n) / (1h / $__rate_interval)",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "overhead",
+          "range": false,
+          "refId": "C"
+        }
+      ],
+      "title": "Overhead Cost",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "Overhead (cluster+LB) cost of current range",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 12,
+        "x": 12,
+        "y": 23
+      },
+      "id": 56,
+      "options": {
+        "displayLabels": [
+          "name"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum_over_time(\n    sum(kubecost_load_balancer_cost OR on() vector(0))[$__range:$__rate_interval]\n) / (1h / $__rate_interval)",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "lb",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum_over_time(\n    (sum(kubecost_cluster_management_cost > 0) or vector(0.1))[$__range:$__rate_interval]\n) / (1h / $__rate_interval)",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "cluster",
+          "range": false,
+          "refId": "B"
+        }
+      ],
+      "title": "Overhead Cost",
+      "type": "piechart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 34
+      },
+      "id": 68,
+      "panels": [],
+      "title": "Workload",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 0,
+        "y": 35
+      },
+      "id": 15,
+      "options": {
+        "legend": {
+          "calcs": [
+            "last"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "sortBy": "Last",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "eem9khdirkcn4f"
+          },
+          "editorMode": "code",
+          "expr": "sum by (node) (node_total_hourly_cost{node!~\"fargate.*\"})",
+          "hide": false,
+          "legendFormat": "{{ node }}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "eem9khdirkcn4f"
+          },
+          "editorMode": "code",
+          "expr": "sum by (node) (container_cpu_allocation{node=~\"fargate.*\"}) * on(node) group_left() (avg by (node) (node_cpu_hourly_cost))\n+\nsum by (node) (container_memory_allocation_bytes{node=~\"fargate.*\"} / 1024 / 1024 / 1024 + 0.25) * on(node) group_left() (avg by (node) (node_ram_hourly_cost))",
+          "hide": false,
+          "legendFormat": "{{ node }}",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Hourly Workload Cost (by node)",
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -359,12 +1011,12 @@
         ]
       },
       "gridPos": {
-        "h": 11,
-        "w": 24,
-        "x": 0,
-        "y": 12
+        "h": 13,
+        "w": 12,
+        "x": 12,
+        "y": 35
       },
-      "id": 15,
+      "id": 63,
       "options": {
         "legend": {
           "calcs": [
@@ -382,7 +1034,7 @@
           "sort": "desc"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.1.0",
       "targets": [
         {
           "datasource": {
@@ -409,7 +1061,7 @@
           "refId": "B"
         }
       ],
-      "title": "Hourly Workload Cost by Namespace",
+      "title": "Hourly Workload Cost (by namespace)",
       "type": "timeseries"
     },
     {
@@ -420,12 +1072,12 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "continuous-GrYlRd"
+            "mode": "palette-classic"
           },
           "custom": {
             "axisBorderShow": false,
             "axisCenteredZero": false,
-            "axisColorMode": "series",
+            "axisColorMode": "text",
             "axisGridShow": true,
             "axisLabel": "",
             "axisPlacement": "auto",
@@ -450,7 +1102,7 @@
             "spanNulls": false,
             "stacking": {
               "group": "A",
-              "mode": "none"
+              "mode": "normal"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -473,10 +1125,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 11,
+        "h": 13,
         "w": 24,
         "x": 0,
-        "y": 23
+        "y": 48
       },
       "id": 16,
       "options": {
@@ -499,7 +1151,7 @@
           "sort": "desc"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.1.0",
       "targets": [
         {
           "datasource": {
@@ -507,209 +1159,15 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (namespace, container) (\n\tsum by (container,namespace, instance) (container_memory_allocation_bytes  / 1024 / 1024 / 1024)\n\t* on (instance) group_left() (\n\t\tnode_ram_hourly_cost{}\n\t\t# + on(node,instance_type) group_left()\n\t\t# label_replace(\n\t\t# \tkube_node_labels{}, \"instance_type\", \"$1\", \"label_node_kubernetes_io_instance_type\", \"(.*)\"\n\t\t# ) * 0\n\t)\n  + sum by (container, namespace, instance) (container_cpu_allocation)\n\t* on (instance) group_left() (\n\t\tnode_cpu_hourly_cost{}\n\t\t# + on(node, instance_type) group_left()\n\t\t# label_replace(\n\t\t# \tkube_node_labels{}, \"instance_type\", \"$1\", \"label_node_kubernetes_io_instance_type\", \"(.*)\"\n\t\t# ) * 0\n\t)\n)",
+          "expr": "sum by (namespace, container) (\n\tsum by (container,namespace, instance) (container_memory_allocation_bytes  / 1024 / 1024 / 1024)\n\t* on (instance) group_left() (avg by (instance) (node_ram_hourly_cost))\n  + sum by (container, namespace, instance) (container_cpu_allocation)\n\t* on (instance) group_left() (avg by (instance) (node_cpu_hourly_cost))\n)",
           "interval": "",
           "legendFormat": "{{namespace}} / {{container}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Hourly Workload Cost by Container",
+      "title": "Hourly Workload Cost (by container)",
       "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "description": "PersistentVolume cost of current range",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            }
-          },
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "N/A"
-                }
-              },
-              "type": "special"
-            }
-          ],
-          "min": 0,
-          "unit": "currencyUSD"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 34
-      },
-      "id": 54,
-      "options": {
-        "displayLabels": [
-          "name"
-        ],
-        "legend": {
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "sortBy": "Value",
-          "sortDesc": true,
-          "values": [
-            "value",
-            "percent"
-          ]
-        },
-        "pieType": "pie",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.1.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "sum by (namespace) (\n    sum_over_time((\n        sum by (persistentvolume) (pv_hourly_cost)\n        * on (persistentvolume) group_right() sum by (persistentvolume, namespace) (pod_pvc_allocation / 1024 / 1024 / 1024)\n    )[$__range:$__rate_interval])\n) / (1h / $__rate_interval)",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "{{ namespace }}",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "PV Cost by Namespace",
-      "type": "piechart"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "description": "Overhead (cluster+LB) cost of current range",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            }
-          },
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "N/A"
-                }
-              },
-              "type": "special"
-            }
-          ],
-          "unit": "currencyUSD"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 34
-      },
-      "id": 56,
-      "options": {
-        "displayLabels": [
-          "name"
-        ],
-        "legend": {
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "values": [
-            "value",
-            "percent"
-          ]
-        },
-        "pieType": "pie",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.1.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "sum_over_time(\n    sum(kubecost_load_balancer_cost OR on() vector(0))[$__range:$__rate_interval]\n) / (1h / $__rate_interval)",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "lb",
-          "range": false,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "sum_over_time(\n    (sum(kubecost_cluster_management_cost > 0) or vector(0.1))[$__range:$__rate_interval]\n) / (1h / $__rate_interval)",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "cluster",
-          "range": false,
-          "refId": "B"
-        }
-      ],
-      "title": "Overhead Cost",
-      "type": "piechart"
     },
     {
       "collapsed": false,
@@ -717,11 +1175,11 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 42
+        "y": 61
       },
       "id": 11,
       "panels": [],
-      "title": "By Namespace $namespace",
+      "title": "Namespace ($namespace)",
       "type": "row"
     },
     {
@@ -777,7 +1235,7 @@
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 43
+        "y": 62
       },
       "id": 60,
       "options": {
@@ -807,7 +1265,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.1.0",
       "targets": [
         {
           "datasource": {
@@ -866,7 +1324,7 @@
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 43
+        "y": 62
       },
       "id": 62,
       "options": {
@@ -896,7 +1354,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.1.0",
       "targets": [
         {
           "datasource": {
@@ -981,7 +1439,7 @@
         "h": 14,
         "w": 24,
         "x": 0,
-        "y": 54
+        "y": 73
       },
       "id": 59,
       "options": {
@@ -1004,7 +1462,7 @@
           "sort": "desc"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.1.0",
       "targets": [
         {
           "datasource": {
