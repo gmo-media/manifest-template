@@ -105,7 +105,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -144,7 +144,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum_over_time(\n    (sum(kubecost_load_balancer_cost OR on() vector(0)) + sum(kubecost_cluster_management_cost))[$__range:$__rate_interval]\n) / (1h / $__rate_interval)",
+          "expr": "sum_over_time(\n    (sum(kubecost_load_balancer_cost OR on() vector(0)) + (sum(kubecost_cluster_management_cost > 0) or vector(0.1)))[$__range:$__rate_interval]\n) / (1h / $__rate_interval)",
           "hide": false,
           "instant": true,
           "interval": "",
@@ -239,7 +239,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -382,7 +382,7 @@
           "sort": "desc"
         }
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -499,7 +499,7 @@
           "sort": "desc"
         }
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -587,7 +587,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -675,7 +675,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -699,7 +699,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum_over_time(\n    sum(kubecost_cluster_management_cost)[$__range:$__rate_interval]\n) / (1h / $__rate_interval)",
+          "expr": "sum_over_time(\n    (sum(kubecost_cluster_management_cost > 0) or vector(0.1))[$__range:$__rate_interval]\n) / (1h / $__rate_interval)",
           "hide": false,
           "instant": true,
           "interval": "",
@@ -807,7 +807,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -896,7 +896,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -1004,7 +1004,7 @@
           "sort": "desc"
         }
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -1077,5 +1077,5 @@
   "timezone": "",
   "title": "Cluster / OpenCost",
   "uid": "fARuElT4z",
-  "version": 1
+  "version": 2
 }
