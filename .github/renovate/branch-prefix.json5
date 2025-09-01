@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  // Group by ./dev or ./prod
-  additionalBranchPrefix: "{{#if (or (containsString packageFileDir 'dev/') (containsString packageFileDir 'prod/'))}}{{replace '(.*?)\\/.*' '$1' packageFileDir}}-{{else}}{{/if}}",
-  commitMessagePrefix: "{{#if (or (containsString packageFileDir 'dev') (containsString packageFileDir 'prod'))}}[{{replace '(.*?)\\/.*' '$1' packageFileDir}}] {{else}}{{/if}}"
+  // Group by directory
+  additionalBranchPrefix: "{{#if (containsString packageFileDir '/')}}{{replace '/' '-' (replace '(.*)\\/.*?' '$1' packageFileDir)}}-{{else}}{{/if}}",
+  commitMessagePrefix: "{{#if (containsString packageFileDir '/')}}[{{replace '(.*)\\/.*?' '$1' packageFileDir}}]{{else}}[/]{{/if}"
 }
