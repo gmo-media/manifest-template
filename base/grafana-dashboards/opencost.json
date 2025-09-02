@@ -1475,8 +1475,8 @@
     "list": [
       {
         "current": {
-          "text": "zz-opencost-archive-vm",
-          "value": "eem9khdirkcn4f"
+          "text": "zz-opencost",
+          "value": "opencost"
         },
         "includeAll": false,
         "label": "Datasource",
