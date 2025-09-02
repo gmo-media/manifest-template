@@ -19,8 +19,6 @@ alertmanager:
             requests:
               storage: 1Gi
   config:
-    global:
-      slack_api_url: "https://hooks.slack.com/services/..."
     route:
       group_by: ['alertname']
       receiver: slack-notifications
@@ -39,6 +37,7 @@ alertmanager:
       - name: slack-notifications
         slack_configs:
           - channel: '#infra-team-alert'
+            api_url: "https://hooks.slack.com/services/..."
             send_resolved: false
             title_link: 'https://monitor.example.com/alerting/list?search={{ .CommonLabels.alertname }}'
             color: '{{ if eq .CommonLabels.severity "info" }}good{{ else if eq .CommonLabels.severity "warning" }}warning{{ else }}danger{{ end }}'
@@ -46,13 +45,12 @@ alertmanager:
               [{{ .CommonLabels.severity | toUpper }}]
               {{ .CommonAnnotations.summary }}{{ if eq .Status "firing" }} (x{{ .Alerts.Firing | len }}){{ end }}
             text: |
-              *Runbook:* {{ .CommonAnnotations.runbook_url }}
-              
-              
+              {{- if .CommonAnnotations.runbook_url }}
+              *Runbook:* <{{ .CommonAnnotations.runbook_url }}|Runbook>
+              {{- end }}
+              *Silence:* <https://alertmanager.example.com/#/silences/new?filter=%7B{{ range $idx, $label := .CommonLabels.SortedPairs }}{{ if $idx }}%2C{{ end }}{{ $label.Name | urlquery }}%3D%22{{ $label.Value | urlquery }}%22{{ end }}%7D|Alertmanager>
               {{- range $idx, $alert := .Alerts }}
               • {{ .Annotations.description }}
-              
-              
               {{- end }}
 
 grafana:

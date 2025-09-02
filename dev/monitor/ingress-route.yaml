@@ -18,3 +18,14 @@ spec:
           name: grafana
           port: 80
           scheme: http
+
+    - kind: Rule
+      match: Host(`alertmanager.example.com`)
+      middlewares:
+        - name: auth-group-admin
+          namespace: auth
+      services:
+        - kind: Service
+          name: vmalertmanager-vms-victoria-metrics-k8s-stack
+          port: http
+          scheme: http
