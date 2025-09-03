@@ -24,7 +24,7 @@
   "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 439,
+  "id": 932,
   "links": [],
   "panels": [
     {
@@ -360,7 +360,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(container_cpu_allocation{node=~\"$node\", node=~\"fargate.*\"}) * avg(node_cpu_hourly_cost{node=~\"$node\"})\n+\nsum(container_memory_allocation_bytes{node=~\"$node\", node=~\"fargate.*\"} / 1024 / 1024 / 1024 + 0.25) * avg(node_ram_hourly_cost{node=~\"$node\"})",
+          "expr": "sum(\n  sum by (node) (container_cpu_allocation{node=~\"$node\", node=~\"fargate.*\"})\n  * avg by (node) (node_cpu_hourly_cost{node=~\"$node\"})\n)\n+\nsum(\n  sum by (node) (container_memory_allocation_bytes{node=~\"$node\", node=~\"fargate.*\"} / 1024 / 1024 / 1024 + 0.25)\n  * avg by (node) (node_ram_hourly_cost{node=~\"$node\"})\n)",
           "hide": false,
           "instant": false,
           "interval": "",
@@ -2839,5 +2839,5 @@
   "timezone": "",
   "title": "Cluster / Nodes Overview",
   "uid": "fds74rvgq8740c",
-  "version": 1
+  "version": 2
 }
