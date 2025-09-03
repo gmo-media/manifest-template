@@ -82,10 +82,11 @@ files:
   - ./secrets/notifications.yaml
 ```
 
-Files included in this template are already encrypted with an example key.
-Remove the `sops` key in YAML, replace the contents with your actual values,
-then run `scripts/secret-encrypt.sh <filename>` to encrypt the file.
-Update `ksops.yaml` as needed.
+> [!NOTE]
+> Files included in this template are already encrypted with an example key.
+> Remove the `sops` key in YAML, replace the contents with your actual values,
+> then run `scripts/secret-encrypt.sh <filename>` to encrypt the file.
+> Update `ksops.yaml` as needed.
 
 ### Install Karpenter
 
@@ -121,16 +122,32 @@ Then:
     - Then, install this app into your manifest repository.
     - Take note of: GitHub App ID, installation ID (check the URL in your browser after installation!), and private key.
 2. [Add repository from ArgoCD UI](https://argo-cd.readthedocs.io/en/stable/user-guide/private-repositories/#github-app-credential).
-3. Create a "root" Application.
-    - Replace `<your-org>/<your-repo>` in `application-set.yaml` with your actual repository names.
-    - To prevent accidental deletion of all applications, `.syncPolicy.preserveResourcesOnDeletion` is set to `true` in
-      `./dev/.applications/application-set.yaml`.
-      To properly delete Application resources, you must first empty the Application directory - that is, set
-      `resources: []` in `kustomization.yaml`.
-      https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Application-Deletion/
-4. Configure webhook on push from GitHub to `https://<your-argocd-url>/api/webhook`.
+3. Configure webhook on push from GitHub to `https://<your-argocd-url>/api/webhook`.
     - Set webhook "Content Type" to `application/json`.
     - https://argo-cd.readthedocs.io/en/stable/operator-manual/webhook/
+
+### Sync applications
+
+You can start adding applications from the ArgoCD UI.
+Check if you need other applications under `./dev/*`, and replace placeholders as needed.
+
+After you're done creating some initial applications such as `traefik` and `monitor`,
+and you've done deleting unnecessary application directories,
+you can add a "root" application to automatically discover and sync all applications under `./dev/*`.
+
+To create a "root" Application, replace `<your-org>/<your-repo>` in `./dev/.application/application-set.yaml` with your actual repository names.
+Then, add an Application pointing to `./dev/.applications` directory.
+
+> [!NOTE]
+> To prevent accidental deletion of all applications, `.syncPolicy.preserveResourcesOnDeletion` is set to `true` in
+> `./dev/.applications/application-set.yaml`.
+>
+> To properly delete Application resources when you no longer need an Application,
+> you must empty the Application directory first, that is,
+> ensure no resources are generated from `kustomization.yaml` in the Application directory.
+> Then, you can optionally delete the Kubernetes namespace itself after deleting the ArgoCD Application.
+>
+> https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Application-Deletion/
 
 ### Setup ArgoCD notifications (Slack)
 
