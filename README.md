@@ -38,6 +38,17 @@ This repository assumes that you already own a Kubernetes cluster.
 See [infra-template](https://github.com/gmo-media/infra-template) to get started.
 Make sure you can run `kubectl apply` to deploy initial resources.
 
+### Create your repository from this template
+
+To get started, press the "Use this template" button on the top right of this page.
+
+We recommend importing [recommended-ruleset.json](.github/recommended-ruleset.json) to your repository
+(Settings -> Rules -> Rulesets -> Import a ruleset).
+Adjust rulesets to your liking.
+
+We intentionally allow "Deploy keys" to bypass the ruleset.
+This is to allow other CI/CD systems to directly push to `main` branch of this repository.
+
 ### Setup sops / age
 
 1. Install [sops](https://github.com/getsops/sops) and [age](https://github.com/FiloSottile/age) locally.
