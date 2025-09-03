@@ -87,6 +87,19 @@ Remove the `sops` key in YAML, replace the contents with your actual values,
 then run `scripts/secret-encrypt.sh <filename>` to encrypt the file.
 Update `ksops.yaml` as needed.
 
+### Install Karpenter
+
+If you have created your cluster with [infra-template](https://github.com/gmo-media/infra-template),
+it doesn't have associated node groups, and therefore cannot schedule pods except for the ones matching Fargate profiles.
+We will use Karpenter to provision nodes for normal pods.
+
+1. Configure placeholders in `./dev/karpenter/values.yaml` and `./dev/karpenter/default.yaml`.
+2. Create `karpenter` namespace: `kubectl create ns karpenter`
+3. Deploy Karpenter: `scripts/build.sh ./dev/karpenter | kubectl apply -f -`
+
+Note that the Karpenter controller itself is meant to be scheduled on Fargate nodes.
+The corresponding Fargate profile is created in [infra-template](https://github.com/gmo-media/infra-template).
+
 ### Install ArgoCD
 
 See `./dev/argocd/values.yaml` to configure values.
@@ -96,7 +109,7 @@ You will likely need to change:
 - `configs.rbac`: RBAC configuration.
 
 Then:
-1. Apply the manifests: `scripts/build.sh ./dev/argocd | kubectl apply -f -`
+1. Deploy ArgoCD: `scripts/build.sh ./dev/argocd | kubectl apply -f -`
 2. Get `admin` password: `kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode && echo`
 3. Port-forward to access temporarily at `localhost:8080`: `kubectl port-forward -n argocd svc/argocd-server 8080:8080`
 
