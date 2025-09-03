@@ -4,4 +4,11 @@ creation_rules:
     # comma separated value
     # Replace below with your age public-key which starts with "age1"
     age: >-
-      <age-public-key>
+      age1wjup22frscewff097e978zagculhmyx9pnlmlhqzj3pjd4277spq5pcjka
+
+# The public key above corresponds to the private key below.
+# Replace the public key above with your own one, and NEVER leave private keys in version control.
+# key.txt, IMPORTANT: FOR DEMONSTRATION PURPOSES ONLY.
+# # created: 2025-09-03T13:07:24+09:00
+# # public key: age1wjup22frscewff097e978zagculhmyx9pnlmlhqzj3pjd4277spq5pcjka
+# AGE-SECRET-KEY-1GPTK8XADV8F824P7YGZXP2YEVJ68PRXCUU52MHPLV5Q5ZMP5X8FS9VGQHS

@@ -45,13 +45,13 @@ Make sure you can run `kubectl apply` to deploy initial resources.
     - `key.txt` is the private key, so you want to keep this secret.
     - Public key is printed to stdout. Set this to `.sops.yaml`.
 3. Create a Secret named `age-key` in `argocd` namespace.
-   `kubectl create secret generic age-key -n argocd --from-file=key.txt`
+    - `kubectl create ns argocd && kubectl create secret generic age-key -n argocd --from-file=key.txt`
     - This is referenced from `./dev/argocd` manifest.
 4. Place `key.txt` somewhere safe, or delete if you don't need it.
     - macOS recommended location: `$HOME/Library/Application Support/sops/age/keys.txt`
     - https://github.com/getsops/sops?tab=readme-ov-file#23encrypting-using-age
 
-### Encrypting secrets
+### How to handle secrets
 
 See `scripts/secret-*.sh` for various utility scripts to manipulate sops-encrypted files.
 
@@ -60,7 +60,7 @@ Most basic ones:
 - `scripts/secret-set-key.sh`: Set a key-value pair in an encrypted file.
 - `scripts/secret-set-key-base64.sh`: Use this instead if your value has special characters.
 
-You will NOT likely need to use `secret-decrypt.sh` or `secret-edit.sh` NOR need the private key locally,
+You will likely NOT need to use `secret-decrypt.sh` or `secret-edit.sh` NOR need the private key locally,
 given the fact that age encryption is asymmetric.
 You could even commit encrypted files to a public repository.
 
@@ -83,9 +83,10 @@ files:
   - ./secrets/notifications.yaml
 ```
 
-For starters, you will likely need to set secret values in `./dev/argocd/secrets/argocd-secret.yaml`
-and run `scripts/secret-encrypt.sh ./dev/argocd/secrets/argocd-secret.yaml` to encrypt the file.
-Update `./dev/argocd/ksops.yaml` as needed.
+Files included in this template are already encrypted with an example key.
+Remove the `sops` key in YAML, replace the contents with your actual values,
+then run `scripts/secret-encrypt.sh <filename>` to encrypt the file.
+Update `ksops.yaml` as needed.
 
 ### Install ArgoCD
 
@@ -96,10 +97,9 @@ You will likely need to change:
 - `configs.rbac`: RBAC configuration.
 
 Then:
-1. Create `argocd` namespace: `kubectl create namespace argocd`
-2. Apply the manifests: `scripts/build.sh ./dev/argocd | kubectl apply -f -`
-3. Get `admin` password: `kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode && echo`
-4. Port-forward to access temporarily at `localhost:8080`: `kubectl port-forward -n argocd svc/argocd-server 8080:8080`
+1. Apply the manifests: `scripts/build.sh ./dev/argocd | kubectl apply -f -`
+2. Get `admin` password: `kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode && echo`
+3. Port-forward to access temporarily at `localhost:8080`: `kubectl port-forward -n argocd svc/argocd-server 8080:8080`
 
 ### Connect the manifest repository
 
@@ -148,6 +148,7 @@ https://argo-cd.readthedocs.io/en/stable/operator-manual/notifications/services/
         ```
 
 2. Obtain an OAuth Token (`xoxp-...`) and set it to `argocd-notifications-secret` (`./dev/argocd/secrets/notifications.yaml`).
+   Encrypt the secret with `scripts/secret-encrypt.sh`, and update `ksops.yaml` accordingly.
 
     ```yaml
     apiVersion: v1
@@ -158,9 +159,6 @@ https://argo-cd.readthedocs.io/en/stable/operator-manual/notifications/services/
     stringData:
       slack-token: "replace-me-with-actual-token"
     ```
-
-3. Run `scripts/secret-encrypt.sh ./dev/argocd/secrets/notifications.yaml` to encrypt the secret.
-   Reference it from `./dev/argocd/ksops.yaml` accordingly.
 
 ## Best practices
 
