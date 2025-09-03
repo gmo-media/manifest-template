@@ -36,7 +36,7 @@ alertmanager:
       - name: 'null'
       - name: slack-notifications
         slack_configs:
-          - channel: '#infra-team-alert'
+          - channel: '#your-alert-channel'
             api_url: "https://hooks.slack.com/services/..."
             send_resolved: false
             title_link: 'https://monitor.example.com/alerting/list?search={{ .CommonLabels.alertname }}'
