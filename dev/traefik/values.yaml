@@ -66,9 +66,9 @@ ports:
   web:
     forwardedHeaders:
       trustedIPs:
-        # Replace with your VPC CIDR
+        # Replace with your actual VPC CIDR
         - 10.1.0.0/16 # VPC
-        - 2406:da14:1268:c100::/56 # VPC
+        - 2406::/56 # VPC
     transport:
       lifeCycle:
         # https://github.com/kubernetes/kubernetes/issues/106476
