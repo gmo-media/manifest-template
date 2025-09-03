@@ -141,11 +141,12 @@ Then, add an Application pointing to `./dev/.applications` directory.
 > [!NOTE]
 > To prevent accidental deletion of all applications, `.syncPolicy.preserveResourcesOnDeletion` is set to `true` in
 > `./dev/.applications/application-set.yaml`.
+> This prevents ArgoCD from deleting application resources when `Application` itself is deleted.
 >
-> To properly delete Application resources when you no longer need an Application,
-> you must empty the Application directory first, that is,
-> ensure no resources are generated from `kustomization.yaml` in the Application directory.
-> Then, you can optionally delete the Kubernetes namespace itself after deleting the ArgoCD Application.
+> To properly delete Application resources, you must empty the Application directory first, that is,
+> ensure no resources are generated from `kustomization.yaml`.
+> Then, delete `Application` by deleting the corresponding directory (if it is controlled by ApplicationSet),
+> and you can optionally delete the Kubernetes namespace itself.
 >
 > https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Application-Deletion/
 
