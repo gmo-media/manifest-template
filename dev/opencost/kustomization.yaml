@@ -1,7 +1,7 @@
 helmCharts:
   - repo: https://opencost.github.io/opencost-helm-chart
     name: opencost
-    version: "2.2.4"
+    version: "2.2.5"
     includeCRDs: true
     namespace: opencost
     releaseName: opencost
