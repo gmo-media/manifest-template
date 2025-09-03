@@ -7,5 +7,5 @@ metadata:
       exec:
         path: ksops
 
-files: []
-  # - ./secrets/auth.yaml
+files:
+  - ./secrets/auth.yaml

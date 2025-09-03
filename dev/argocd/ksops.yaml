@@ -7,6 +7,6 @@ metadata:
       exec:
         path: ksops
 
-files: []
-  # - ./secrets/argocd-secret.yaml
-  # - ./secrets/notifications.yaml
+files:
+  - ./secrets/argocd-secret.yaml
+  - ./secrets/notifications.yaml

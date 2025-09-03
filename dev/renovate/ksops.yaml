@@ -7,6 +7,6 @@ metadata:
       exec:
         path: ksops
 
-files: []
-  # - ./secrets/aws-eks-addon-lookup.yaml
-  # - ./secrets/key.yaml
+files:
+  - ./secrets/aws-eks-addon-lookup.yaml
+  - ./secrets/key.yaml

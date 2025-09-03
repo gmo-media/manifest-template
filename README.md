@@ -78,7 +78,6 @@ metadata:
         path: ksops
 
 files:
-  # Comment these lines out if you don't need them yet
   - ./secrets/argocd-secret.yaml
   - ./secrets/notifications.yaml
 ```
