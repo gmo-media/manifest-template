@@ -1,6 +1,7 @@
 # Refer to https://github.com/viaduct-ai/kustomize-sops
 creation_rules:
-  - unencrypted_regex: "^(apiVersion|metadata|kind|type)$"
+  - path_regex: "^dev/.*"
+    unencrypted_regex: "^(apiVersion|metadata|kind|type)$"
     # comma separated value
     # Replace below with your age public-key which starts with "age1"
     age: >-
