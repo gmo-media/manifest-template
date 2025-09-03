@@ -15,7 +15,7 @@ spec:
         repoURL: https://github.com/<your-org>/<your-repo>.git
         revision: main
         directories:
-          - path: 'prod/*'
+          - path: 'dev/*'
         values:
           path: '{{path.basename}}'
 
