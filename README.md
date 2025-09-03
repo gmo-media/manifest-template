@@ -131,8 +131,12 @@ Then:
 You can start adding applications from the ArgoCD UI.
 Check if you need other applications under `./dev/*`, and replace placeholders as needed.
 
-After you're done creating some initial applications such as `traefik` and `monitor`,
-and you've done deleting unnecessary application directories,
+Recommended first applications to sync (in order):
+- `kyverno` (adds pull-through-cache image rewrite)
+- `aws-load-balancer-controller`
+- `traefik` (includes ALB and Ingress Controller for use in other apps)
+
+After you're done creating some essential applications and done deleting unnecessary application directories,
 you can add a "root" application to automatically discover and sync all applications under `./dev/*`.
 
 To create a "root" Application, replace `<your-org>/<your-repo>` in `./dev/.application/application-set.yaml` with your actual repository names.
