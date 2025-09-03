@@ -360,7 +360,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(\n  sum by (node) (container_cpu_allocation{node=~\"$node\", node=~\"fargate.*\"})\n  * avg by (node) (node_cpu_hourly_cost{node=~\"$node\"})\n)\n+\nsum(\n  sum by (node) (container_memory_allocation_bytes{node=~\"$node\", node=~\"fargate.*\"} / 1024 / 1024 / 1024 + 0.25)\n  * avg by (node) (node_ram_hourly_cost{node=~\"$node\"})\n)",
+          "expr": "sum(\n  sum by (node) (container_cpu_allocation{node=~\"$node\", node=~\"fargate.*\"})\n  * avg by (node) (node_cpu_hourly_cost{node=~\"$node\", label_karpenter_sh_nodepool=~\"$nodepool\"})\n)\n+\nsum(\n  sum by (node) (container_memory_allocation_bytes{node=~\"$node\", node=~\"fargate.*\"} / 1024 / 1024 / 1024 + 0.25)\n  * avg by (node) (node_ram_hourly_cost{node=~\"$node\", label_karpenter_sh_nodepool=~\"$nodepool\"})\n)",
           "hide": false,
           "instant": false,
           "interval": "",
@@ -2839,5 +2839,5 @@
   "timezone": "",
   "title": "Cluster / Nodes Overview",
   "uid": "fds74rvgq8740c",
-  "version": 2
+  "version": 3
 }
