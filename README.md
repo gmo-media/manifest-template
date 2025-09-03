@@ -90,7 +90,7 @@ Update `ksops.yaml` as needed.
 ### Install Karpenter
 
 If you have created your cluster with [infra-template](https://github.com/gmo-media/infra-template),
-it doesn't have associated node groups, and therefore cannot schedule pods except for the ones matching Fargate profiles.
+it can't schedule normal nodes / pods yet because there are no associated node groups.
 We will use Karpenter to provision nodes for normal pods.
 
 1. Configure placeholders in `./dev/karpenter/values.yaml` and `./dev/karpenter/default.yaml`.
