@@ -24,7 +24,7 @@
   "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 859,
+  "id": 956,
   "links": [],
   "panels": [
     {
@@ -803,6 +803,110 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 12,
+        "x": 0,
+        "y": 35
+      },
+      "id": 70,
+      "options": {
+        "displayLabels": [
+          "name"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "eem9khdirkcn4f"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum_over_time(\r\n(\r\nsum by (label_karpenter_sh_nodepool) (\r\n  node_total_hourly_cost{}\r\n  * on (node) group_left(label_karpenter_sh_nodepool) (\r\n    kube_node_labels{node!~\"fargate.*\"}\r\n  )\r\n)\r\n)\r\n[$__range:$__rate_interval]) / (1h / $__rate_interval)",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "{{ namespace }}",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum_over_time(\n(\nsum(\n  sum by (node) (container_cpu_allocation{})\n  * avg by (node) (node_cpu_hourly_cost{node=~\"fargate.*\"})\n)\n+\nsum(\n  sum by (node) (container_memory_allocation_bytes{} / 1024 / 1024 / 1024 + 0.25)\n  * avg by (node) (node_ram_hourly_cost{node=~\"fargate.*\"})\n)\n)\n[$__range:$__rate_interval]) / (1h / $__rate_interval)",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "Fargate",
+          "range": false,
+          "refId": "B"
+        }
+      ],
+      "title": "Node Cost (by nodepool)",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -817,7 +921,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 10,
+            "fillOpacity": 50,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -831,7 +935,7 @@
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "never",
+            "showPoints": "auto",
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -841,15 +945,23 @@
               "mode": "off"
             }
           },
-          "links": [],
           "mappings": [],
           "min": 0,
+          "noValue": "0",
           "thresholds": {
-            "mode": "absolute",
+            "mode": "percentage",
             "steps": [
               {
                 "color": "green",
                 "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 70
               }
             ]
           },
@@ -858,12 +970,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
-        "x": 0,
+        "x": 12,
         "y": 35
       },
-      "id": 15,
+      "id": 69,
       "options": {
         "legend": {
           "calcs": [
@@ -871,14 +983,12 @@
           ],
           "displayMode": "table",
           "placement": "right",
-          "showLegend": true,
-          "sortBy": "Last",
-          "sortDesc": true
+          "showLegend": true
         },
         "tooltip": {
           "hideZeros": false,
           "mode": "multi",
-          "sort": "desc"
+          "sort": "none"
         }
       },
       "pluginVersion": "12.1.1",
@@ -886,29 +996,35 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "eem9khdirkcn4f"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (node) (node_total_hourly_cost{node!~\"fargate.*\"})",
+          "exemplar": false,
+          "expr": "sum by (label_karpenter_sh_nodepool) (\r\n  node_total_hourly_cost{}\r\n  * on (node) group_left(label_karpenter_sh_nodepool) (\r\n    kube_node_labels{node!~\"fargate.*\"}\r\n  )\r\n)",
           "hide": false,
-          "legendFormat": "{{ node }}",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "eem9khdirkcn4f"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (node) (container_cpu_allocation{node=~\"fargate.*\"}) * on(node) group_left() (avg by (node) (node_cpu_hourly_cost))\n+\nsum by (node) (container_memory_allocation_bytes{node=~\"fargate.*\"} / 1024 / 1024 / 1024 + 0.25) * on(node) group_left() (avg by (node) (node_ram_hourly_cost))",
+          "exemplar": false,
+          "expr": "sum(\n  sum by (node) (container_cpu_allocation{})\n  * avg by (node) (node_cpu_hourly_cost{node=~\"fargate.*\"})\n)\n+\nsum(\n  sum by (node) (container_memory_allocation_bytes{} / 1024 / 1024 / 1024 + 0.25)\n  * avg by (node) (node_ram_hourly_cost{node=~\"fargate.*\"})\n)",
           "hide": false,
-          "legendFormat": "{{ node }}",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Fargate",
           "range": true,
           "refId": "B"
         }
       ],
-      "title": "Hourly Workload Cost (by node)",
+      "title": "Hourly Node Cost (by nodepool)",
       "type": "timeseries"
     },
     {
@@ -995,10 +1111,10 @@
         ]
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
-        "x": 12,
-        "y": 35
+        "x": 0,
+        "y": 46
       },
       "id": 63,
       "options": {
@@ -1109,10 +1225,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
-        "w": 24,
-        "x": 0,
-        "y": 48
+        "h": 11,
+        "w": 12,
+        "x": 12,
+        "y": 46
       },
       "id": 16,
       "options": {
@@ -1143,7 +1259,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (namespace, container) (\n\tsum by (container,namespace, instance) (container_memory_allocation_bytes  / 1024 / 1024 / 1024)\n\t* on (instance) group_left() (avg by (instance) (node_ram_hourly_cost))\n  + sum by (container, namespace, instance) (container_cpu_allocation)\n\t* on (instance) group_left() (avg by (instance) (node_cpu_hourly_cost))\n)",
+          "expr": "sum by (namespace, container) (\n\tsum by (container, namespace, instance) (container_memory_allocation_bytes  / 1024 / 1024 / 1024)\n\t* on (instance) group_left() (avg by (instance) (node_ram_hourly_cost))\n  +\n\tsum by (container, namespace, instance) (container_cpu_allocation)\n\t* on (instance) group_left() (avg by (instance) (node_cpu_hourly_cost))\n)",
           "interval": "",
           "legendFormat": "{{namespace}} / {{container}}",
           "range": true,
@@ -1159,10 +1275,11 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 61
+        "y": 57
       },
       "id": 11,
       "panels": [],
+      "repeat": "namespace",
       "title": "Namespace ($namespace)",
       "type": "row"
     },
@@ -1216,10 +1333,10 @@
         ]
       },
       "gridPos": {
-        "h": 11,
-        "w": 12,
+        "h": 7,
+        "w": 8,
         "x": 0,
-        "y": 62
+        "y": 58
       },
       "id": 60,
       "options": {
@@ -1275,6 +1392,111 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "series",
+            "axisGridShow": true,
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 58
+      },
+      "id": 59,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "sortBy": "Mean",
+          "sortDesc": true
+        },
+        "timezone": [
+          "browser"
+        ],
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum by (namespace, container) (\n\tsum by (container,namespace, instance) (container_memory_allocation_bytes{namespace=\"$namespace\"} / 1024 / 1024 / 1024)\n\t* on (instance) group_left() (\n\t\tnode_ram_hourly_cost{}\n\t\t# + on(node,instance_type) group_left()\n\t\t# label_replace(\n\t\t# \tkube_node_labels{}, \"instance_type\", \"$1\", \"label_node_kubernetes_io_instance_type\", \"(.*)\"\n\t\t# ) * 0\n\t)\n  + sum by (container, namespace, instance) (container_cpu_allocation{namespace=\"$namespace\"})\n\t* on (instance) group_left() (\n\t\tnode_cpu_hourly_cost{}\n\t\t# + on(node, instance_type) group_left()\n\t\t# label_replace(\n\t\t# \tkube_node_labels{}, \"instance_type\", \"$1\", \"label_node_kubernetes_io_instance_type\", \"(.*)\"\n\t\t# ) * 0\n\t)\n)",
+          "interval": "",
+          "legendFormat": "{{namespace}} / {{container}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Hourly Workload Cost by Container",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "description": "PersistentVolume cost of current range",
       "fieldConfig": {
         "defaults": {
@@ -1305,10 +1527,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 11,
-        "w": 12,
-        "x": 12,
-        "y": 62
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 58
       },
       "id": 62,
       "options": {
@@ -1358,111 +1580,6 @@
       ],
       "title": "PV Cost by Pod",
       "type": "piechart"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "continuous-GrYlRd"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "series",
-            "axisGridShow": true,
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "links": [],
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              }
-            ]
-          },
-          "unit": "currencyUSD"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 14,
-        "w": 24,
-        "x": 0,
-        "y": 73
-      },
-      "id": 59,
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean"
-          ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "sortBy": "Mean",
-          "sortDesc": true
-        },
-        "timezone": [
-          "browser"
-        ],
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "pluginVersion": "12.1.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "sum by (namespace, container) (\n\tsum by (container,namespace, instance) (container_memory_allocation_bytes{namespace=\"$namespace\"} / 1024 / 1024 / 1024)\n\t* on (instance) group_left() (\n\t\tnode_ram_hourly_cost{}\n\t\t# + on(node,instance_type) group_left()\n\t\t# label_replace(\n\t\t# \tkube_node_labels{}, \"instance_type\", \"$1\", \"label_node_kubernetes_io_instance_type\", \"(.*)\"\n\t\t# ) * 0\n\t)\n  + sum by (container, namespace, instance) (container_cpu_allocation{namespace=\"$namespace\"})\n\t* on (instance) group_left() (\n\t\tnode_cpu_hourly_cost{}\n\t\t# + on(node, instance_type) group_left()\n\t\t# label_replace(\n\t\t# \tkube_node_labels{}, \"instance_type\", \"$1\", \"label_node_kubernetes_io_instance_type\", \"(.*)\"\n\t\t# ) * 0\n\t)\n)",
-          "interval": "",
-          "legendFormat": "{{namespace}} / {{container}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Hourly Workload Cost by Container",
-      "type": "timeseries"
     }
   ],
   "preload": false,
@@ -1488,16 +1605,20 @@
         "type": "datasource"
       },
       {
+        "allValue": ".*",
         "current": {
-          "text": "kube-system",
-          "value": "kube-system"
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": {
           "type": "prometheus",
           "uid": "${datasource}"
         },
         "definition": "label_values(kube_namespace_labels, namespace)",
-        "includeAll": false,
+        "includeAll": true,
+        "multi": true,
         "name": "namespace",
         "options": [],
         "query": {
@@ -1519,5 +1640,5 @@
   "timezone": "",
   "title": "Cluster / OpenCost",
   "uid": "fARuElT4z",
-  "version": 4
+  "version": 5
 }
