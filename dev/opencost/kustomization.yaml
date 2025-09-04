@@ -17,7 +17,7 @@ helmCharts:
 
   - repo: https://victoriametrics.github.io/helm-charts/
     name: victoria-metrics-alert
-    version: "0.25.3"
+    version: "0.25.4"
     includeCRDs: true
     namespace: opencost
     releaseName: vm
