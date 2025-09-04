@@ -9,7 +9,7 @@ helmCharts:
 
   - repo: https://victoriametrics.github.io/helm-charts/
     name: victoria-metrics-single
-    version: "0.24.4"
+    version: "0.24.5"
     includeCRDs: true
     namespace: opencost
     releaseName: vm
