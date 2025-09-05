@@ -24,7 +24,7 @@
   "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 33,
+  "id": 1076,
   "links": [],
   "panels": [
     {
@@ -375,7 +375,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (label_karpenter_sh_nodepool) (\r\n  node_total_hourly_cost{}\r\n  * on (node) group_left(label_karpenter_sh_nodepool) (\r\n    kube_node_labels{node=~\"$node\", node!~\"fargate.*\", label_karpenter_sh_nodepool=~\"$nodepool\"}\r\n  )\r\n)",
+          "expr": "sum by (label_karpenter_sh_nodepool) (\r\n  node_total_hourly_cost{}\r\n  * on (node) group_left(label_karpenter_sh_nodepool) (\r\n    avg by (node, label_karpenter_sh_nodepool) (kube_node_labels{node=~\"$node\", node!~\"fargate.*\", label_karpenter_sh_nodepool=~\"$nodepool\"})\r\n  )\r\n)",
           "hide": false,
           "instant": false,
           "interval": "",
