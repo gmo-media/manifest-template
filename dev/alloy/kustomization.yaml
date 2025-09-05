@@ -14,3 +14,9 @@ helmCharts:
     namespace: alloy
     releaseName: alloy-misc
     valuesFile: ../../base/alloy/values-misc.yaml
+
+configMapGenerator:
+  - name: cluster-env
+    namespace: alloy
+    literals:
+      - CLUSTER_NAME=dev

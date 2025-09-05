@@ -18,6 +18,7 @@ alloy:
       loki.process "cluster_events" {
         stage.static_labels {
           values = {
+            cluster = sys.env("CLUSTER_NAME"),
             job = "k8s-events",
           }
         }
@@ -128,6 +129,7 @@ alloy:
       
         stage.static_labels {
           values = {
+            cluster = sys.env("CLUSTER_NAME"),
             job = "pod-logs",
           }
         }
@@ -140,14 +142,14 @@ alloy:
       // ---- Destinations ----
       loki.write "vl_events" {
         endpoint {
-          url = "http://vl-victoria-logs-cluster-vlinsert.victoria-logs.svc.cluster.local:9481/insert/loki/api/v1/push?_msg_field=msg&_stream_fields=job"
+          url = "http://vl-victoria-logs-cluster-vlinsert.victoria-logs.svc.cluster.local:9481/insert/loki/api/v1/push?_msg_field=msg&_stream_fields=cluster,job"
         }
       }
       
       loki.write "vl_default" {
         endpoint {
           // Prevent auto-parse of JSON messages: https://docs.victoriametrics.com/victorialogs/data-ingestion/promtail/index.html
-          url = "http://vl-victoria-logs-cluster-vlinsert.victoria-logs.svc.cluster.local:9481/insert/loki/api/v1/push?_stream_fields=job,node,namespace,pod,container&disable_message_parsing=1"
+          url = "http://vl-victoria-logs-cluster-vlinsert.victoria-logs.svc.cluster.local:9481/insert/loki/api/v1/push?_stream_fields=cluster,job,node,namespace,pod,container&disable_message_parsing=1"
         }
       }
 
@@ -159,6 +161,9 @@ alloy:
       cpu: 100m
       memory: 128Mi
   storagePath: /run/alloy
+  envFrom:
+    - configMapRef:
+        name: cluster-env
   mounts:
     extra:
       - name: alloy

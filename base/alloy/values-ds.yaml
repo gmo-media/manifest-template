@@ -74,7 +74,7 @@ alloy:
       local.file_match "pod_logs" {
         path_targets = discovery.relabel.pod_logs.output
       }
-  
+
       loki.source.file "pod_logs" {
         targets    = local.file_match.pod_logs.targets
         forward_to = [loki.process.pod_logs.receiver]
@@ -94,10 +94,11 @@ alloy:
       
         stage.static_labels {
           values = {
+            cluster = sys.env("CLUSTER_NAME"),
             job = "pod-logs",
           }
         }
-  
+
         forward_to = [
           loki.relabel.split_traefik.receiver,
           loki.relabel.split_default.receiver,
@@ -122,16 +123,17 @@ alloy:
         forward_to = [loki.write.vl_default.receiver]
       }
       
+      // VictoriaLogs receivers
       loki.write "vl_traefik" {
         endpoint {
-          url = "http://vl-victoria-logs-cluster-vlinsert.victoria-logs.svc.cluster.local:9481/insert/loki/api/v1/push?_stream_fields=job,node,namespace,pod,container&_msg_field=message"
+          url = "http://vl-victoria-logs-cluster-vlinsert.victoria-logs.svc.cluster.local:9481/insert/loki/api/v1/push?_stream_fields=cluster,job,node,namespace,pod,container&_msg_field=message"
         }
       }
       
       loki.write "vl_default" {
         endpoint {
           // Prevent auto-parse of JSON messages: https://docs.victoriametrics.com/victorialogs/data-ingestion/promtail/index.html
-          url = "http://vl-victoria-logs-cluster-vlinsert.victoria-logs.svc.cluster.local:9481/insert/loki/api/v1/push?_stream_fields=job,node,namespace,pod,container&disable_message_parsing=1"
+          url = "http://vl-victoria-logs-cluster-vlinsert.victoria-logs.svc.cluster.local:9481/insert/loki/api/v1/push?_stream_fields=cluster,job,node,namespace,pod,container&disable_message_parsing=1"
         }
       }
 
@@ -143,6 +145,9 @@ alloy:
       cpu: 500m
       memory: 200Mi
   storagePath: /run/alloy
+  envFrom:
+    - configMapRef:
+        name: cluster-env
   mounts:
     varlog: true
     extra:
