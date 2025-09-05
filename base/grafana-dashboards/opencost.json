@@ -24,7 +24,7 @@
   "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 956,
+  "id": 526,
   "links": [],
   "panels": [
     {
@@ -875,7 +875,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum_over_time(\r\n(\r\nsum by (label_karpenter_sh_nodepool) (\r\n  node_total_hourly_cost{}\r\n  * on (node) group_left(label_karpenter_sh_nodepool) (\r\n    kube_node_labels{node!~\"fargate.*\"}\r\n  )\r\n)\r\n)\r\n[$__range:$__rate_interval]) / (1h / $__rate_interval)",
+          "expr": "sum_over_time(\r\n(\r\nsum by (label_karpenter_sh_nodepool) (\r\n  node_total_hourly_cost{}\r\n  * on (node) group_left(label_karpenter_sh_nodepool) (\r\n    avg by (node, label_karpenter_sh_nodepool) (kube_node_labels{node!~\"fargate.*\"})\r\n  )\r\n)\r\n)\r\n[$__range:$__rate_interval]) / (1h / $__rate_interval)",
           "hide": false,
           "instant": true,
           "interval": "",
@@ -1000,7 +1000,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (label_karpenter_sh_nodepool) (\r\n  node_total_hourly_cost{}\r\n  * on (node) group_left(label_karpenter_sh_nodepool) (\r\n    kube_node_labels{node!~\"fargate.*\"}\r\n  )\r\n)",
+          "expr": "sum by (label_karpenter_sh_nodepool) (\r\n  node_total_hourly_cost{}\r\n  * on (node) group_left(label_karpenter_sh_nodepool) (\r\n    avg by (node, label_karpenter_sh_nodepool) (kube_node_labels{node!~\"fargate.*\"})\r\n  )\r\n)",
           "hide": false,
           "instant": false,
           "interval": "",
@@ -1640,5 +1640,5 @@
   "timezone": "",
   "title": "Cluster / OpenCost",
   "uid": "fARuElT4z",
-  "version": 5
+  "version": 3
 }
