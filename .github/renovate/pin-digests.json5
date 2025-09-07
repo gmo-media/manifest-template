@@ -13,6 +13,7 @@
         "amazon/aws-cli",
         "renovate/renovate",
         "bitnami/kubectl",
+        "alpine",
       ],
       "pinDigests": false,
     }
