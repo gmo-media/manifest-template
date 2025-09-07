@@ -21,11 +21,11 @@ opencost:
       projectID: "<aws-account-id>"
 
   exporter:
-    # To use https://github.com/opencost/opencost/pull/3348
-    # image:
-    #   repository: motoki317/opencost
-    #   tag: 1.117.3-p1
-    #   pullPolicy: Always
+    # TODO: Use official image once https://github.com/opencost/opencost/pull/3348 and https://github.com/opencost/opencost/pull/3350 is merged
+    image:
+      repository: motoki317/opencost
+      tag: patch-eks
+      pullPolicy: Always
     resources:
       requests:
         cpu: 50m

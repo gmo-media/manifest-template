@@ -24,7 +24,7 @@
   "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 526,
+  "id": 491,
   "links": [],
   "panels": [
     {
@@ -890,7 +890,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum_over_time(\n(\nsum(\n  sum by (node) (container_cpu_allocation{})\n  * avg by (node) (node_cpu_hourly_cost{node=~\"fargate.*\"})\n)\n+\nsum(\n  sum by (node) (container_memory_allocation_bytes{} / 1024 / 1024 / 1024 + 0.25)\n  * avg by (node) (node_ram_hourly_cost{node=~\"fargate.*\"})\n)\n)\n[$__range:$__rate_interval]) / (1h / $__rate_interval)",
+          "expr": "sum_over_time(\n(\nsum by (label_karpenter_sh_nodepool) (\n  node_total_hourly_cost{}\n  * on (node) group_left(label_karpenter_sh_nodepool) (\n    avg by (node, label_karpenter_sh_nodepool) (kube_node_labels{node=~\"fargate.*\"})\n  )\n)\n)\n[$__range:$__rate_interval]) / (1h / $__rate_interval)",
           "hide": false,
           "instant": true,
           "interval": "",
@@ -1015,7 +1015,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(\n  sum by (node) (container_cpu_allocation{})\n  * avg by (node) (node_cpu_hourly_cost{node=~\"fargate.*\"})\n)\n+\nsum(\n  sum by (node) (container_memory_allocation_bytes{} / 1024 / 1024 / 1024 + 0.25)\n  * avg by (node) (node_ram_hourly_cost{node=~\"fargate.*\"})\n)",
+          "expr": "sum by (label_karpenter_sh_nodepool) (\n  node_total_hourly_cost{}\n  * on (node) group_left(label_karpenter_sh_nodepool) (\n    avg by (node, label_karpenter_sh_nodepool) (kube_node_labels{node=~\"fargate.*\"})\n  )\n)",
           "hide": false,
           "instant": false,
           "interval": "",
@@ -1482,7 +1482,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by (namespace, container) (\n\tsum by (container,namespace, instance) (container_memory_allocation_bytes{namespace=\"$namespace\"} / 1024 / 1024 / 1024)\n\t* on (instance) group_left() (\n\t\tnode_ram_hourly_cost{}\n\t\t# + on(node,instance_type) group_left()\n\t\t# label_replace(\n\t\t# \tkube_node_labels{}, \"instance_type\", \"$1\", \"label_node_kubernetes_io_instance_type\", \"(.*)\"\n\t\t# ) * 0\n\t)\n  + sum by (container, namespace, instance) (container_cpu_allocation{namespace=\"$namespace\"})\n\t* on (instance) group_left() (\n\t\tnode_cpu_hourly_cost{}\n\t\t# + on(node, instance_type) group_left()\n\t\t# label_replace(\n\t\t# \tkube_node_labels{}, \"instance_type\", \"$1\", \"label_node_kubernetes_io_instance_type\", \"(.*)\"\n\t\t# ) * 0\n\t)\n)",
+          "expr": "sum by (namespace, container) (\n\tsum by (container,namespace, instance) (container_memory_allocation_bytes{namespace=\"$namespace\"} / 1024 / 1024 / 1024)\n\t* on (instance) group_left() (\n\t\tnode_ram_hourly_cost{}\n\t)\n  + sum by (container, namespace, instance) (container_cpu_allocation{namespace=\"$namespace\"})\n\t* on (instance) group_left() (\n\t\tnode_cpu_hourly_cost{}\n\t)\n)",
           "interval": "",
           "legendFormat": "{{namespace}} / {{container}}",
           "range": true,
@@ -1640,5 +1640,5 @@
   "timezone": "",
   "title": "Cluster / OpenCost",
   "uid": "fARuElT4z",
-  "version": 3
+  "version": 2
 }

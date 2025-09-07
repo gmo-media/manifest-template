@@ -24,7 +24,7 @@
   "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 1076,
+  "id": 487,
   "links": [],
   "panels": [
     {
@@ -390,7 +390,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(\n  sum by (node) (container_cpu_allocation{})\n  * avg by (node) (node_cpu_hourly_cost{node=~\"$node\", node=~\"fargate.*\", label_karpenter_sh_nodepool=~\"$nodepool\"})\n)\n+\nsum(\n  sum by (node) (container_memory_allocation_bytes{} / 1024 / 1024 / 1024 + 0.25)\n  * avg by (node) (node_ram_hourly_cost{node=~\"$node\", node=~\"fargate.*\", label_karpenter_sh_nodepool=~\"$nodepool\"})\n)",
+          "expr": "sum by (label_karpenter_sh_nodepool) (\n  node_total_hourly_cost{}\n  * on (node) group_left(label_karpenter_sh_nodepool) (\n    avg by (node, label_karpenter_sh_nodepool) (kube_node_labels{node=~\"$node\", node=~\"fargate.*\", label_karpenter_sh_nodepool=~\"$nodepool\"})\n  )\n)",
           "hide": false,
           "instant": false,
           "interval": "",
@@ -1698,7 +1698,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(sum(node_total_hourly_cost{node=~\"$node\", node!~\"fargate.*\"}) or vector(0))\n+\n(sum(container_cpu_allocation{node=~\"$node\", node=~\"fargate.*\"}) * avg(node_cpu_hourly_cost{node=~\"$node\"}) or vector(0))\n+\n(sum(container_memory_allocation_bytes{node=~\"$node\", node=~\"fargate.*\"} / 1024 / 1024 / 1024 + 0.25) * avg(node_ram_hourly_cost{node=~\"$node\"}) or vector(0))",
+          "expr": "avg(node_total_hourly_cost{node=~\"$node\"})",
           "instant": true,
           "interval": "",
           "legendFormat": "",
@@ -2930,5 +2930,5 @@
   "timezone": "",
   "title": "Cluster / Nodes Overview",
   "uid": "fds74rvgq8740c",
-  "version": 1
+  "version": 2
 }
