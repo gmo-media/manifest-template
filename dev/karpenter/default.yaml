@@ -41,6 +41,8 @@ spec:
         - key: "karpenter.k8s.aws/instance-category"
           operator: In
           values: ["c", "m", "r"]
+          # If you want to allow burstable instances:
+          # values: ["c", "m", "r", "t"]
         - key: "karpenter.k8s.aws/instance-cpu"
           operator: In
           values: ["1", "2", "4", "8", "16"]
