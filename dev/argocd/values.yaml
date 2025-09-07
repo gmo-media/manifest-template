@@ -76,7 +76,7 @@ repoServer:
   # 2. Use an init container to download/copy custom binaries into the emptyDir
   initContainers:
     - name: install-ksops
-      image: viaductoss/ksops:v4.3.3
+      image: viaductoss/ksops:v4.4.0
       # https://github.com/viaduct-ai/kustomize-sops/pull/264
       # image: ghcr.io/motoki317/ksops:v4.4.0
       command: ["/bin/sh", "-c"]
