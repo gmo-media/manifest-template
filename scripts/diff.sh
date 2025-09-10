@@ -22,6 +22,8 @@ convert() {
     yq '(select(.kind == "Secret" and .type == "kubernetes.io/tls") | .data) = {}' \
     | yq '(select(.kind == "ValidatingWebhookConfiguration") | .webhooks.[].clientConfig.caBundle) = ""' \
     | yq '(select(.kind == "MutatingWebhookConfiguration") | .webhooks.[].clientConfig.caBundle) = ""' \
+    | yq '(select(.kind == "Secret" and .metadata.name == "grafana") | .data.admin-password) = ""' \
+    | yq '(select(.kind == "Deployment" and .metadata.name == "grafana") | .spec.template.metadata.annotations.checksum/secret) = ""' \
     > "$OUTPUT"
 }
 
