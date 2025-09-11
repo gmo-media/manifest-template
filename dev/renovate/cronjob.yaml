@@ -14,6 +14,9 @@ spec:
       template:
         spec:
           restartPolicy: Never
+          serviceAccountName: renovate
+          automountServiceAccountToken: true
+
           volumes:
             - name: config
               configMap:
@@ -38,9 +41,6 @@ spec:
                 limits:
                   memory: 3Gi
 
-              envFrom:
-                - secretRef:
-                    name: aws-eks-addon-lookup
               env:
                 - name: APP_ID
                   value: "<your-app-id>"
