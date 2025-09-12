@@ -18,7 +18,7 @@
   "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 856,
+  "id": 508,
   "links": [
     {
       "asDropdown": false,
@@ -2664,17 +2664,17 @@
           "type": "prometheus",
           "uid": "${datasource}"
         },
-        "definition": "label_values(traefik_service_requests_total,service)",
+        "definition": "label_values(kube_namespace_created,namespace)",
         "includeAll": true,
         "name": "namespace",
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(traefik_service_requests_total,service)",
+          "query": "label_values(kube_namespace_created,namespace)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
-        "regex": "([a-z]+)-.+",
+        "regex": "",
         "type": "query"
       },
       {
@@ -2745,5 +2745,5 @@
   "timezone": "browser",
   "title": "Cluster / Traefik",
   "uid": "e800400a-6e52-48db-95aa-1592f8dc167a",
-  "version": 2
+  "version": 1
 }
