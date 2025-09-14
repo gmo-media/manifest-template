@@ -154,16 +154,22 @@ To create a "root" Application, replace `<your-org>/<your-repo>` in `./dev/.appl
 Then, add an Application pointing to `./dev/.applications` directory.
 
 > [!NOTE]
-> To prevent accidental deletion of all applications, `.syncPolicy.preserveResourcesOnDeletion` is set to `true` in
-> `./dev/.applications/application-set.yaml`.
-> This prevents ArgoCD from deleting application resources when `Application` itself is deleted.
+> To prevent accidental deletion of Applications' resources, the following `syncPolicy` is in place for ApplicationSet:
 >
-> To properly delete Application resources, you must empty the Application directory first, that is,
-> ensure no resources are generated from `kustomization.yaml`.
-> Then, delete `Application` by deleting the corresponding directory (if it is controlled by ApplicationSet),
-> and you can optionally delete the Kubernetes namespace itself.
+> ```yaml
+> syncPolicy:
+>   # Prevents ArgoCD from deleting Application resources when the Application is deleted.
+>   # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Application-Deletion/
+>   preserveResourcesOnDeletion: true
+>   # Prevents ApplicationSet from deleting Application when it is no longer discovered.
+>   # https://argo-cd.readthedocs.io/en/latest/operator-manual/applicationset/Controlling-Resource-Modification/
+>   applicationsSync: create-update
+> ```
 >
-> https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Application-Deletion/
+> (And `applicationsetcontroller.enable.policy.override` is set to `true` in `argocd-cmd-params-cm`.)
+>
+> To properly delete an Application itself and its resources, first delete the directory from the git repository
+> and then delete the Application using cascading deletion from the UI.
 
 ### Setup ArgoCD notifications (Slack)
 
