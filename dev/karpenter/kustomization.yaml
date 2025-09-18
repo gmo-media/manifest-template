@@ -1,7 +1,7 @@
 helmCharts:
   - repo: oci://public.ecr.aws/karpenter
     name: karpenter
-    version: "1.7.0"
+    version: "1.7.1"
     includeCRDs: true
     namespace: karpenter
     releaseName: karpenter
