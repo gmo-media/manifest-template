@@ -23,7 +23,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: trigger
-              image: bitnami/kubectl:latest
+              image: registry.suse.com/suse/kubectl:latest
               command:
                 - /bin/bash
                 - -c

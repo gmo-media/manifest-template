@@ -13,6 +13,7 @@
         "amazon/aws-cli",
         "renovate/renovate",
         "bitnami/kubectl",
+        "registry.suse.com/suse/kubectl",
         "alpine",
       ],
       "pinDigests": false,
