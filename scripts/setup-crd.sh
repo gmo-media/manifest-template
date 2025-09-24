@@ -20,7 +20,7 @@ kustomize build https://github.com/kubernetes-sigs/aws-load-balancer-controller/
 python3 openapi2jsonschema.py crd.yaml && rm crd.yaml
 
 # renovate:github-url
-python3 openapi2jsonschema.py https://raw.githubusercontent.com/argoproj/argo-cd/v3.1.6/manifests/install.yaml
+python3 openapi2jsonschema.py https://raw.githubusercontent.com/argoproj/argo-cd/v3.1.7/manifests/install.yaml
 
 # renovate:image-tag imageName=public.ecr.aws/karpenter/karpenter
 helm template --include-crds oci://public.ecr.aws/karpenter/karpenter --set settings.clusterName=test --version "1.7.1" > crd.yaml
