@@ -6,11 +6,13 @@
       "fileMatch": [
         ".+"
       ],
-      // Example: (github-releases) version: "v1.27.3"
+      // Example: (github-releases) version: "v1.27.3", VERSION=v1.27.3
       "matchStrings": [
         "# renovate:general datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\n.*?\"(?<currentValue>.*)\"",
+        "# renovate:general datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\n.*=(?<currentValue>.*)",
         // Empty line is required here to avoid matching the next line
         "# renovate:general datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) registryUrl=(?<registryUrl>\\S+)\n.*?\"(?<currentValue>.*)\"",
+        "# renovate:general datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) registryUrl=(?<registryUrl>\\S+)\n.*=(?<currentValue>.*)",
       ],
     },
     {
