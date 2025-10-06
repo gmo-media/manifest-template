@@ -134,9 +134,7 @@ alloy:
           }
         }
       
-        forward_to = [
-          loki.write.vl_default.receiver,
-        ]
+        forward_to = [loki.write.vl_pods.receiver]
       }
       
       // ---- Destinations ----
@@ -146,10 +144,9 @@ alloy:
         }
       }
       
-      loki.write "vl_default" {
+      loki.write "vl_pods" {
         endpoint {
-          // Prevent auto-parse of JSON messages: https://docs.victoriametrics.com/victorialogs/data-ingestion/promtail/index.html
-          url = "http://vl-victoria-logs-cluster-vlinsert.victoria-logs.svc.cluster.local:9481/insert/loki/api/v1/push?_stream_fields=cluster,job,node,namespace,pod,container&disable_message_parsing=1"
+          url = "http://vl-victoria-logs-cluster-vlinsert.victoria-logs.svc.cluster.local:9481/insert/loki/api/v1/push?_stream_fields=cluster,job,node,namespace,pod,container"
         }
       }
 

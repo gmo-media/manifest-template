@@ -18,7 +18,7 @@
   "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1430,
+  "id": 849,
   "links": [
     {
       "asDropdown": false,
@@ -96,7 +96,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "{namespace=\"traefik\"} Duration:\"\" | format \"<_msg><error>\"",
+          "expr": "{namespace=\"traefik\"} Duration:\"\"\n| delete _stream_id, _stream, container_runtime, filename\n| pack_logfmt",
           "queryType": "instant",
           "refId": "A"
         }

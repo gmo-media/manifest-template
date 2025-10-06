@@ -25,7 +25,7 @@
   "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 113,
+  "id": 856,
   "links": [],
   "panels": [
     {
@@ -108,7 +108,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -153,7 +153,7 @@
         "sortOrder": "Ascending",
         "wrapLogMessage": false
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -161,7 +161,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "{job=pod-logs, node=~\"$node\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\"} ~\"$search\" $extra_filter",
+          "expr": "{job=pod-logs, node=~\"$node\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\"} ~\"$search\" $extra_filter\n| copy _time as __time_tmp\n| delete _stream, _stream_id, _time, filename, container_runtime\n| pack_logfmt\n| rename __time_tmp as _time\n| delete __time_tmp",
           "queryType": "instant",
           "refId": "A"
         }
@@ -375,5 +375,5 @@
   "timezone": "",
   "title": "Cluster / Container Logs",
   "uid": "edb7ab1e-54ff-4607-a675-ed345087cea7",
-  "version": 7
+  "version": 2
 }

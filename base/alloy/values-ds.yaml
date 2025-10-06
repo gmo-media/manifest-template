@@ -99,41 +99,12 @@ alloy:
           }
         }
 
-        forward_to = [
-          loki.relabel.split_traefik.receiver,
-          loki.relabel.split_default.receiver,
-        ]
-      }
-
-      loki.relabel "split_traefik" {
-        rule {
-          source_labels = ["namespace"]
-          regex = "traefik"
-          action = "keep"
-        }
-        forward_to = [loki.write.vl_traefik.receiver]
-      }
-      
-      loki.relabel "split_default" {
-        rule {
-          source_labels = ["namespace"]
-          regex = "traefik"
-          action = "drop"
-        }
         forward_to = [loki.write.vl_default.receiver]
-      }
-      
-      // VictoriaLogs receivers
-      loki.write "vl_traefik" {
-        endpoint {
-          url = "http://vl-victoria-logs-cluster-vlinsert.victoria-logs.svc.cluster.local:9481/insert/loki/api/v1/push?_stream_fields=cluster,job,node,namespace,pod,container&_msg_field=message"
-        }
       }
       
       loki.write "vl_default" {
         endpoint {
-          // Prevent auto-parse of JSON messages: https://docs.victoriametrics.com/victorialogs/data-ingestion/promtail/index.html
-          url = "http://vl-victoria-logs-cluster-vlinsert.victoria-logs.svc.cluster.local:9481/insert/loki/api/v1/push?_stream_fields=cluster,job,node,namespace,pod,container&disable_message_parsing=1"
+          url = "http://vl-victoria-logs-cluster-vlinsert.victoria-logs.svc.cluster.local:9481/insert/loki/api/v1/push?_stream_fields=cluster,job,node,namespace,pod,container"
         }
       }
 
