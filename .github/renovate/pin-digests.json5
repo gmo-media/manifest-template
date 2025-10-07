@@ -15,6 +15,7 @@
         "bitnami/kubectl",
         "registry.suse.com/suse/kubectl",
         "alpine",
+        "docker.io/library/alpine",
       ],
       "pinDigests": false,
     }
