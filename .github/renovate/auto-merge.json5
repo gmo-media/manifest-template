@@ -15,5 +15,14 @@
       "automerge": true,
       "matchUpdateTypes": ["minor", "patch"],
     },
+    {
+      // NOTE: minimumReleaseAge does not work for non-Docker Hub images for now
+      // https://docs.renovatebot.com/configuration-options/#minimumreleaseage
+      // Since Karpenter is a critical component, automerge is disabled for now
+      "description": "Disable auto merge for Karpenter helm",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["public.ecr.aws/karpenter/karpenter"],
+      "automerge": false,
+    },
   ]
 }
