@@ -10,6 +10,12 @@
       "matchUpdateTypes": ["minor", "patch"],
     },
     {
+      "description": "Auto merge up to minor in scripts",
+      "matchFileNames": ["scripts/**"],
+      "automerge": true,
+      "matchUpdateTypes": ["minor", "patch"],
+    },
+    {
       "description": "Auto merge up to minor in dev",
       "matchFileNames": ["dev/**"],
       "automerge": true,
