@@ -1,7 +1,7 @@
 helmCharts:
   - repo: https://aws.github.io/eks-charts
     name: aws-load-balancer-controller
-    version: "1.14.0"
+    version: "1.14.1"
     includeCRDs: true
     namespace: aws-load-balancer-controller
     releaseName: aws-load-balancer-controller
