@@ -151,8 +151,6 @@ configs:
     # To better align with server-side-apply
     # https://argo-cd.readthedocs.io/en/stable/user-guide/diff-strategies/#server-side-diff
     controller.diff.server.side: "true"
-    # https://argo-cd.readthedocs.io/en/latest/operator-manual/applicationset/Controlling-Resource-Modification/
-    applicationsetcontroller.enable.policy.override: "true"
 
   secret:
     createSecret: false
