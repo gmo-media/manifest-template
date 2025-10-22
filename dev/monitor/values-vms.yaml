@@ -8,6 +8,8 @@ alertmanager:
       limits:
         cpu: '1'
         memory: 100Mi
+    securityContext:
+      fsGroup: 65534
     storage:
       volumeClaimTemplate:
         metadata:
