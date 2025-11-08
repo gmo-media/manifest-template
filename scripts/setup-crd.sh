@@ -27,7 +27,7 @@ helm template --include-crds oci://public.ecr.aws/karpenter/karpenter --set sett
 python3 openapi2jsonschema.py crd.yaml && rm crd.yaml
 
 # renovate:github-url
-python3 openapi2jsonschema.py https://raw.githubusercontent.com/traefik/traefik/v3.5.4/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
+python3 openapi2jsonschema.py https://raw.githubusercontent.com/traefik/traefik/v3.5.6/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
 
 # renovate:github-url
 python3 openapi2jsonschema.py https://github.com/kyverno/kyverno/releases/download/v1.15.2/install.yaml
