@@ -30,7 +30,7 @@ python3 openapi2jsonschema.py crd.yaml && rm crd.yaml
 python3 openapi2jsonschema.py https://raw.githubusercontent.com/traefik/traefik/v3.6.2/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
 
 # renovate:github-url
-python3 openapi2jsonschema.py https://github.com/kyverno/kyverno/releases/download/v1.16.0/install.yaml
+python3 openapi2jsonschema.py https://github.com/kyverno/kyverno/releases/download/v1.16.1/install.yaml
 
 # renovate:general datasource=helm depName=prometheus-operator-crds registryUrl=https://prometheus-community.github.io/helm-charts
 helm template --include-crds --repo https://prometheus-community.github.io/helm-charts --set settings.clusterName=test prometheus-operator-crds --version "24.0.2" > crd.yaml
