@@ -1,7 +1,7 @@
 helmCharts:
   - repo: https://victoriametrics.github.io/helm-charts/
     name: victoria-logs-cluster
-    version: "0.0.19"
+    version: "0.0.20"
     includeCRDs: true
     namespace: victoria-logs
     releaseName: vl
