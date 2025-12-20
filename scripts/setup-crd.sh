@@ -16,7 +16,7 @@ kustomize build https://github.com/aws/amazon-vpc-resource-controller-k8s//confi
 python3 openapi2jsonschema.py crd.yaml && rm crd.yaml
 
 # renovate:github-url
-kustomize build https://github.com/kubernetes-sigs/aws-load-balancer-controller//config/default?ref=v2.16.0 > crd.yaml
+kustomize build https://github.com/kubernetes-sigs/aws-load-balancer-controller//config/default?ref=v2.17.0 > crd.yaml
 python3 openapi2jsonschema.py crd.yaml && rm crd.yaml
 
 # renovate:github-url
