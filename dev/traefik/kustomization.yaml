@@ -1,7 +1,7 @@
 helmCharts:
   - repo: https://traefik.github.io/charts
     name: traefik
-    version: "37.4.0"
+    version: "39.0.2"
     # Correctly render PDB apiVersion (in CI)
     # https://github.com/traefik/traefik-helm-chart/blob/master/traefik/templates/poddisruptionbudget.yaml
     apiVersions:
